@@ -1,0 +1,10 @@
+const inventoryData = [
+    { id: 'EQ-01', name: 'Speaker Aktif 15 Inch', category: 'Sound System', stock: 10, available: 8, price: 150000 },
+    { id: 'EQ-02', name: 'Tenda Sarnafil 3x3', category: 'Tenda', stock: 5, available: 2, price: 300000 },
+    { id: 'EQ-03', name: 'Lampu Par LED', category: 'Lighting', stock: 20, available: 20, price: 75000 }
+];
+
+const ordersData = [
+    { id: 'ORD-001', customer: 'Budi Santoso', phone: '6281234567890', item: 'Speaker Aktif 15 Inch', startDate: '2026-10-15', endDate: '2026-10-16', total: 300000, status: 'Menunggu Pembayaran' },
+    { id: 'ORD-002', customer: 'Siti Aminah', phone: '6289876543210', item: 'Tenda Sarnafil 3x3', startDate: '2026-10-12', endDate: '2026-10-14', total: 900000, status: 'Sedang Disewa' }
+];
