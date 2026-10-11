@@ -4,7 +4,7 @@
 // Data management + Google Sheets sync (3 spreadsheet terpisah)
 // ============================================================
 
-var SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxndVKWn3IZ3N-4upetPEM-TmBlhN8TthSDglg3uivMe0HRRwu_SwEePspj55nvwD08/exec';
+var SHEET_API_URL = 'https://script.google.com/macros/s/AKfycby91CAFj6ARpirkShNAVfOLEFC6-79Tppw5LVflPSsX2StV91lCje0mFe_AJDUawOPC/exec';
 
 // ===== DATA ARRAYS (diisi dari Google Sheets saat load) =====
 var inventoryData = [];
