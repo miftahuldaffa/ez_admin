@@ -1,153 +1,392 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eztafest Admin Dashboard</title>
+    <title>Eztafest - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+        }
+    </script>
 </head>
-<body class="bg-gray-50 font-sans flex h-screen overflow-hidden">
-    <div class="w-64 bg-indigo-900 text-white flex flex-col no-print">
-        <div class="p-6">
-            <h1 class="text-2xl font-bold tracking-wider">Eztafest.</h1>
-            <p class="text-indigo-200 text-sm mt-1">Admin Dashboard</p>
-        </div>
-        <nav class="flex-1 mt-6" id="sidebar-nav">
-            <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center px-6 py-3 bg-indigo-800 border-l-4 border-indigo-400" data-target="dashboard">
-                <i data-lucide="home" class="mr-3 w-5 h-5"></i> Dashboard
-            </button>
-            <button onclick="switchTab('inventory')" class="tab-btn w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition" data-target="inventory">
-                <i data-lucide="package" class="mr-3 w-5 h-5"></i> Katalog Alat
-            </button>
-            <button onclick="switchTab('orders')" class="tab-btn w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition" data-target="orders">
-                <i data-lucide="shopping-cart" class="mr-3 w-5 h-5"></i> Pesanan & Nota
-            </button>
-            <button onclick="switchTab('calendar')" class="tab-btn w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition" data-target="calendar">
-                <i data-lucide="calendar" class="mr-3 w-5 h-5"></i> Kalender Alat
-            </button>
-        </nav>
+<body class="bg-gray-50 font-sans">
+<div class="flex h-screen overflow-hidden">
+
+<!-- SIDEBAR -->
+<aside class="sidebar w-64 text-white flex flex-col flex-shrink-0">
+    <div class="p-6 border-b border-indigo-700/50">
+        <h1 class="text-2xl font-extrabold tracking-tight">Eztafest<span class="text-orange-400">.</span></h1>
+        <p class="text-xs text-indigo-300 mt-1">Admin Rental Alat Event</p>
     </div>
-    <div class="flex-1 flex flex-col overflow-hidden w-full">
-        <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center no-print">
-            <h2 id="page-title" class="text-xl font-semibold text-gray-800 capitalize">Dashboard</h2>
-        </header>
-        <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
-            <div id="dashboard" class="tab-content grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h3 class="text-gray-500 text-sm font-medium">Total Pendapatan (Bulan Ini)</h3>
-                    <p class="text-3xl font-bold text-gray-800 mt-2">Rp 1.200.000</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h3 class="text-gray-500 text-sm font-medium">Pesanan Aktif</h3>
-                    <p id="dash-orders-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h3 class="text-gray-500 text-sm font-medium">Alat Tersedia</h3>
-                    <p id="dash-avail-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
-                </div>
-            </div>
-            <div id="inventory" class="tab-content hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 border-b border-gray-200 text-sm">
-                            <th class="p-4 font-semibold text-gray-600">ID Alat</th>
-                            <th class="p-4 font-semibold text-gray-600">Nama</th>
-                            <th class="p-4 font-semibold text-gray-600">Kategori</th>
-                            <th class="p-4 font-semibold text-gray-600">Stok (Tersedia/Total)</th>
-                            <th class="p-4 font-semibold text-gray-600">Harga / Hari</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-tbody"></tbody>
-                </table>
-            </div>
-            <div id="orders" class="tab-content hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 border-b border-gray-200 text-sm">
-                            <th class="p-4 font-semibold text-gray-600">ID Pesanan</th>
-                            <th class="p-4 font-semibold text-gray-600">Pelanggan</th>
-                            <th class="p-4 font-semibold text-gray-600">Alat</th>
-                            <th class="p-4 font-semibold text-gray-600">Tanggal Sewa</th>
-                            <th class="p-4 font-semibold text-gray-600">Status</th>
-                            <th class="p-4 font-semibold text-gray-600">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-tbody"></tbody>
-                </table>
-            </div>
-            <div id="calendar" class="tab-content hidden bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold mb-4">Oktober 2026</h2>
-                <div class="grid grid-cols-7 gap-2" id="calendar-grid"></div>
-            </div>
-        </main>
-    </div>
-    <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
-            <div class="flex justify-between items-center p-6 border-b border-gray-200 no-print">
-                <h3 class="text-lg font-semibold">Detail Nota</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <div class="p-8">
-                <div class="flex justify-between items-start mb-8">
-                    <div>
-                        <h1 class="text-3xl font-bold text-indigo-900">Eztafest.</h1>
-                        <p class="text-gray-500 mt-1">Sewa Alat Event Profesional</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-xl text-gray-800">INVOICE</p>
-                        <p class="text-gray-500" id="inv-id">#</p>
-                    </div>
-                </div>
-                <div class="mb-8 grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm text-gray-500 font-semibold uppercase">Ditagihkan Kepada:</p>
-                        <p class="font-bold text-gray-800 mt-1" id="inv-name">-</p>
-                        <p class="text-gray-600" id="inv-phone">-</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm text-gray-500 font-semibold uppercase">Periode Sewa:</p>
-                        <p class="font-medium text-gray-800 mt-1" id="inv-start">-</p>
-                        <p class="font-medium text-gray-800" id="inv-end">s/d -</p>
-                    </div>
-                </div>
-                <table class="w-full text-left border-collapse mb-8">
-                    <thead>
-                        <tr class="bg-gray-100 border-y border-gray-300">
-                            <th class="py-3 px-4 font-semibold text-gray-700">Deskripsi Alat</th>
-                            <th class="py-3 px-4 font-semibold text-gray-700 text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b border-gray-200">
-                            <td class="py-4 px-4 text-gray-800" id="inv-item">-</td>
-                            <td class="py-4 px-4 text-gray-800 text-right" id="inv-total">-</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="flex justify-end mb-8">
-                    <div class="w-1/2">
-                        <div class="flex justify-between py-2 text-xl font-bold">
-                            <span class="text-indigo-900">Total Akhir</span>
-                            <span class="text-indigo-900" id="inv-grandtotal">-</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-4 border-t border-gray-200 pt-6 no-print">
-                    <button id="btn-wa" class="flex items-center px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
-                        <i data-lucide="message-circle" class="mr-2 w-4 h-4"></i> Kirim ke WA
-                    </button>
-                    <button onclick="window.print()" class="flex items-center px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-                        <i data-lucide="printer" class="mr-2 w-4 h-4"></i> Cetak Dokumen
-                    </button>
-                </div>
-            </div>
+    <nav class="flex-1 py-4 space-y-1 overflow-y-auto">
+        <button onclick="switchTab('dashboard')" data-target="dashboard" class="tab-btn active w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
+        <button onclick="switchTab('katalog')" data-target="katalog" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="box" class="w-5 h-5"></i> Katalog Alat</button>
+        <button onclick="switchTab('pelanggan')" data-target="pelanggan" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="users" class="w-5 h-5"></i> Pelanggan</button>
+        <button onclick="switchTab('transaksi')" data-target="transaksi" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="receipt" class="w-5 h-5"></i> Transaksi</button>
+        <button onclick="switchTab('kalender')" data-target="kalender" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="calendar-days" class="w-5 h-5"></i> Kalender Sewa</button>
+    </nav>
+    <div class="p-4 border-t border-indigo-700/50">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-sm">A</div>
+            <div><p class="text-sm font-semibold">Admin</p><p class="text-xs text-indigo-300">eztafest.com</p></div>
         </div>
     </div>
-    <script src="data.js"></script>
-    <script src="app.js"></script>
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 overflow-y-auto">
+<header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+    <div>
+        <h2 id="page-title" class="text-xl font-bold text-gray-800">Dashboard</h2>
+        <p id="page-subtitle" class="text-sm text-gray-400">Selamat datang di panel admin Eztafest</p>
+    </div>
+    <span id="current-date" class="text-sm text-gray-500"></span>
+</header>
+
+<div class="p-8">
+
+<!-- TAB: DASHBOARD -->
+<section id="dashboard" class="tab-content">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center"><i data-lucide="banknote" class="w-6 h-6 text-indigo-600"></i></div>
+                <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">Bulan Ini</span>
+            </div>
+            <p class="text-sm text-gray-500">Total Pendapatan</p>
+            <p id="dash-revenue" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-6 h-6 text-orange-600"></i></div>
+            </div>
+            <p class="text-sm text-gray-500">Pesanan Aktif</p>
+            <p id="dash-orders" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center"><i data-lucide="package-check" class="w-6 h-6 text-emerald-600"></i></div>
+            </div>
+            <p class="text-sm text-gray-500">Alat Tersedia</p>
+            <p id="dash-available" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center"><i data-lucide="user-check" class="w-6 h-6 text-blue-600"></i></div>
+            </div>
+            <p class="text-sm text-gray-500">Total Pelanggan</p>
+            <p id="dash-customers" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Transaksi Terbaru</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead><tr class="border-b border-gray-100">
+                    <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">ID</th>
+                    <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Pelanggan</th>
+                    <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Alat</th>
+                    <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Total</th>
+                    <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+                </tr></thead>
+                <tbody id="dash-recent-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- TAB: KATALOG -->
+<section id="katalog" class="tab-content hidden">
+    <div class="flex items-center justify-between mb-6">
+        <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="search-katalog" onkeyup="renderKatalog()" placeholder="Cari alat..." class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
+        </div>
+        <button onclick="openAlatModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Alat</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"><div class="overflow-x-auto">
+        <table class="w-full"><thead><tr class="bg-gray-50 border-b border-gray-100">
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">ID</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Nama Alat</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Kategori</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Stok</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Tersedia</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Harga/Hari</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+        </tr></thead><tbody id="katalog-tbody"></tbody></table>
+    </div></div>
+</section>
+
+<!-- TAB: PELANGGAN -->
+<section id="pelanggan" class="tab-content hidden">
+    <div class="flex items-center justify-between mb-6">
+        <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="search-pelanggan" onkeyup="renderPelanggan()" placeholder="Cari pelanggan..." class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
+        </div>
+        <button onclick="openCustomerModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition"><i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pelanggan</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"><div class="overflow-x-auto">
+        <table class="w-full"><thead><tr class="bg-gray-50 border-b border-gray-100">
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">ID</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Nama</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">WhatsApp</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Email</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Alamat</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Total Order</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+        </tr></thead><tbody id="pelanggan-tbody"></tbody></table>
+    </div></div>
+</section>
+
+<!-- TAB: TRANSAKSI -->
+<section id="transaksi" class="tab-content hidden">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="search-transaksi" onkeyup="renderTransaksi()" placeholder="Cari transaksi..." class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
+            </div>
+            <select id="filter-status" onchange="renderTransaksi()" class="border border-gray-200 rounded-xl text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">Semua Status</option>
+                <option value="Menunggu Pembayaran">Menunggu Pembayaran</option>
+                <option value="Sedang Disewa">Sedang Disewa</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Dibatalkan">Dibatalkan</option>
+            </select>
+        </div>
+        <button onclick="openOrderModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition"><i data-lucide="plus" class="w-4 h-4"></i> Buat Pesanan</button>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"><div class="overflow-x-auto">
+        <table class="w-full"><thead><tr class="bg-gray-50 border-b border-gray-100">
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">ID Pesanan</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Pelanggan</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Alat</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Qty</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Tanggal Sewa</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Total</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Status</th>
+            <th class="text-left p-4 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+        </tr></thead><tbody id="transaksi-tbody"></tbody></table>
+    </div></div>
+</section>
+
+<!-- TAB: KALENDER -->
+<section id="kalender" class="tab-content hidden">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+            <button onclick="changeMonth(-1)" class="p-2 hover:bg-gray-200 rounded-lg transition"><i data-lucide="chevron-left" class="w-5 h-5 text-gray-600"></i></button>
+            <h3 id="calendar-month-title" class="text-lg font-bold text-gray-800 min-w-[200px] text-center"></h3>
+            <button onclick="changeMonth(1)" class="p-2 hover:bg-gray-200 rounded-lg transition"><i data-lucide="chevron-right" class="w-5 h-5 text-gray-600"></i></button>
+        </div>
+        <div class="flex items-center gap-3 text-xs">
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 inline-block"></span> Sedang Disewa</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-500 inline-block"></span> Menunggu</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500 inline-block"></span> Selesai</span>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-4">
+        <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+    </div>
+</section>
+
+</div>
+</main>
+</div>
+
+<!-- MODAL: TAMBAH/EDIT ALAT -->
+<div id="modal-alat" class="modal-overlay hidden">
+<div class="modal-content bg-white rounded-2xl w-full max-w-lg mx-4">
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+        <h3 id="modal-alat-title" class="text-lg font-bold text-gray-800">Tambah Alat</h3>
+        <button onclick="closeModal('modal-alat')" class="p-1 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-gray-400"></i></button>
+    </div>
+    <form id="form-alat" onsubmit="saveAlat(event)" class="p-6 space-y-4">
+        <input type="hidden" id="alat-edit-index" value="-1">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Alat</label>
+            <input type="text" id="alat-nama" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                <select id="alat-kategori" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="Sound System">Sound System</option>
+                    <option value="Tenda">Tenda</option>
+                    <option value="Lighting">Lighting</option>
+                    <option value="Panggung">Panggung</option>
+                    <option value="Dekorasi">Dekorasi</option>
+                    <option value="Genset">Genset</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Stok</label>
+                <input type="number" id="alat-stok" required min="1" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Harga Sewa / Hari (Rp)</label>
+            <input type="number" id="alat-harga" required min="0" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+            <button type="button" onclick="closeModal('modal-alat')" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Batal</button>
+            <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium">Simpan</button>
+        </div>
+    </form>
+</div>
+</div>
+
+<!-- MODAL: TAMBAH/EDIT PELANGGAN -->
+<div id="modal-pelanggan" class="modal-overlay hidden">
+<div class="modal-content bg-white rounded-2xl w-full max-w-lg mx-4">
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+        <h3 id="modal-pelanggan-title" class="text-lg font-bold text-gray-800">Tambah Pelanggan</h3>
+        <button onclick="closeModal('modal-pelanggan')" class="p-1 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-gray-400"></i></button>
+    </div>
+    <form id="form-pelanggan" onsubmit="saveCustomer(event)" class="p-6 space-y-4">
+        <input type="hidden" id="cust-edit-index" value="-1">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+            <input type="text" id="cust-nama" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">No. WhatsApp</label>
+                <input type="text" id="cust-phone" required placeholder="6281234567890" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="cust-email" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+            <textarea id="cust-alamat" rows="2" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+            <button type="button" onclick="closeModal('modal-pelanggan')" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Batal</button>
+            <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium">Simpan</button>
+        </div>
+    </form>
+</div>
+</div>
+
+<!-- MODAL: BUAT PESANAN -->
+<div id="modal-order" class="modal-overlay hidden">
+<div class="modal-content bg-white rounded-2xl w-full max-w-lg mx-4">
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-800">Buat Pesanan Baru</h3>
+        <button onclick="closeModal('modal-order')" class="p-1 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-gray-400"></i></button>
+    </div>
+    <form id="form-order" onsubmit="saveOrder(event)" class="p-6 space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Pelanggan</label>
+            <select id="order-customer" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Alat yang Disewa</label>
+            <select id="order-item" required onchange="calcOrderTotal()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Qty</label>
+                <input type="number" id="order-qty" required min="1" value="1" onchange="calcOrderTotal()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mulai</label>
+                <input type="date" id="order-start" required onchange="calcOrderTotal()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Selesai</label>
+                <input type="date" id="order-end" required onchange="calcOrderTotal()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+        <div class="bg-indigo-50 rounded-xl p-4">
+            <p class="text-sm text-gray-600">Estimasi Total: <span id="order-total-preview" class="font-bold text-indigo-700">Rp 0</span></p>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+            <button type="button" onclick="closeModal('modal-order')" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Batal</button>
+            <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium">Buat Pesanan</button>
+        </div>
+    </form>
+</div>
+</div>
+
+<!-- MODAL: INVOICE -->
+<div id="modal-invoice" class="modal-overlay hidden">
+<div class="modal-content bg-white rounded-2xl w-full max-w-2xl mx-4">
+    <div class="no-print p-4 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-800">Invoice / Nota</h3>
+        <button onclick="closeModal('modal-invoice')" class="p-1 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-gray-400"></i></button>
+    </div>
+    <div id="invoice-body" class="p-8">
+        <div class="flex items-start justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-extrabold text-indigo-800">Eztafest<span class="text-orange-500">.</span></h2>
+                <p class="text-sm text-gray-500">Sewa Alat Event Profesional</p>
+                <p class="text-xs text-gray-400 mt-1">www.eztafest.com</p>
+            </div>
+            <div class="text-right">
+                <p class="text-2xl font-bold text-gray-300">INVOICE</p>
+                <p id="inv-id" class="text-sm font-semibold text-indigo-700"></p>
+                <p id="inv-date" class="text-xs text-gray-400 mt-1"></p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-8 mb-8">
+            <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Ditagihkan Kepada</p>
+                <p id="inv-name" class="font-semibold text-gray-800"></p>
+                <p id="inv-phone" class="text-sm text-gray-500"></p>
+                <p id="inv-email" class="text-sm text-gray-500"></p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Periode Sewa</p>
+                <p id="inv-period" class="font-semibold text-gray-800"></p>
+                <p id="inv-days" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+        <table class="w-full mb-6">
+            <thead><tr class="bg-indigo-800 text-white">
+                <th class="text-left p-3 text-sm font-semibold rounded-tl-lg">Deskripsi</th>
+                <th class="text-center p-3 text-sm font-semibold">Qty</th>
+                <th class="text-center p-3 text-sm font-semibold">Hari</th>
+                <th class="text-right p-3 text-sm font-semibold">Harga/Hari</th>
+                <th class="text-right p-3 text-sm font-semibold rounded-tr-lg">Subtotal</th>
+            </tr></thead>
+            <tbody id="inv-items-tbody"></tbody>
+        </table>
+        <div class="flex justify-end">
+            <div class="w-64">
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-500">Subtotal</span>
+                    <span id="inv-subtotal" class="text-sm font-medium"></span>
+                </div>
+                <div class="flex justify-between py-3">
+                    <span class="font-bold text-gray-800">Total</span>
+                    <span id="inv-total" class="text-lg font-bold text-indigo-700"></span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-xs text-gray-400 text-center">Terima kasih atas kepercayaan Anda. Pembayaran dapat dilakukan via transfer bank.</p>
+            <p class="text-xs text-gray-400 text-center mt-1">Eztafest — Sewa Alat Event Profesional</p>
+        </div>
+    </div>
+    <div class="no-print p-4 border-t border-gray-100 flex justify-center gap-3">
+        <button onclick="sendInvoiceWA()" class="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-medium transition"><i data-lucide="message-circle" class="w-4 h-4"></i> Kirim ke WA</button>
+        <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition"><i data-lucide="printer" class="w-4 h-4"></i> Cetak / PDF</button>
+    </div>
+</div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

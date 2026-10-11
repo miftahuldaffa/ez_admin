@@ -1,10 +1,121 @@
-const inventoryData = [
-    { id: 'EQ-01', name: 'Speaker Aktif 15 Inch', category: 'Sound System', stock: 10, available: 8, price: 150000 },
-    { id: 'EQ-02', name: 'Tenda Sarnafil 3x3', category: 'Tenda', stock: 5, available: 2, price: 300000 },
-    { id: 'EQ-03', name: 'Lampu Par LED', category: 'Lighting', stock: 20, available: 20, price: 75000 }
+
+// ============================================================
+// DATA.JS — Eztafest Admin Dashboard
+// ============================================================
+
+const SHEET_API_URL = ''; // Paste Google Apps Script Web App URL di sini
+
+// ===== INVENTORY =====
+var inventoryData = [
+    { id: 'EQ-001', name: 'Speaker Aktif 15 Inch', category: 'Sound System', stock: 10, available: 8, price: 150000 },
+    { id: 'EQ-002', name: 'Tenda Sarnafil 3x3', category: 'Tenda', stock: 5, available: 2, price: 300000 },
+    { id: 'EQ-003', name: 'Lampu Par LED', category: 'Lighting', stock: 20, available: 20, price: 75000 },
+    { id: 'EQ-004', name: 'Mixer Audio 12 Channel', category: 'Sound System', stock: 3, available: 3, price: 200000 },
+    { id: 'EQ-005', name: 'Panggung Portable 2x1m', category: 'Panggung', stock: 8, available: 6, price: 250000 },
+    { id: 'EQ-006', name: 'Genset 5000 Watt', category: 'Genset', stock: 4, available: 4, price: 500000 },
+    { id: 'EQ-007', name: 'Standing Flower Dekor', category: 'Dekorasi', stock: 15, available: 12, price: 100000 },
+    { id: 'EQ-008', name: 'Mic Wireless', category: 'Sound System', stock: 10, available: 9, price: 75000 }
 ];
 
-const ordersData = [
-    { id: 'ORD-001', customer: 'Budi Santoso', phone: '6281234567890', item: 'Speaker Aktif 15 Inch', startDate: '2026-10-15', endDate: '2026-10-16', total: 300000, status: 'Menunggu Pembayaran' },
-    { id: 'ORD-002', customer: 'Siti Aminah', phone: '6289876543210', item: 'Tenda Sarnafil 3x3', startDate: '2026-10-12', endDate: '2026-10-14', total: 900000, status: 'Sedang Disewa' }
+// ===== CUSTOMERS =====
+var customersData = [
+    { id: 'CST-001', name: 'Budi Santoso', phone: '6281234567890', email: 'budi@email.com', address: 'Jl. Pemuda No. 10, Semarang' },
+    { id: 'CST-002', name: 'Siti Aminah', phone: '6289876543210', email: 'siti.aminah@email.com', address: 'Jl. Pandanaran No. 25, Semarang' },
+    { id: 'CST-003', name: 'Ahmad Fauzi', phone: '6281398765432', email: 'ahmad.f@email.com', address: 'Jl. Majapahit No. 88, Semarang' },
+    { id: 'CST-004', name: 'Dewi Kartika', phone: '6285612345678', email: 'dewi.k@email.com', address: 'Jl. Gajah Mada No. 15, Semarang' }
 ];
+
+// ===== ORDERS =====
+var ordersData = [
+    { id: 'ORD-001', customerId: 'CST-001', itemId: 'EQ-001', qty: 2, startDate: '2026-10-15', endDate: '2026-10-16', total: 600000, status: 'Menunggu Pembayaran' },
+    { id: 'ORD-002', customerId: 'CST-002', itemId: 'EQ-002', qty: 3, startDate: '2026-10-12', endDate: '2026-10-14', total: 2700000, status: 'Sedang Disewa' },
+    { id: 'ORD-003', customerId: 'CST-003', itemId: 'EQ-003', qty: 10, startDate: '2026-10-08', endDate: '2026-10-10', total: 2250000, status: 'Selesai' },
+    { id: 'ORD-004', customerId: 'CST-004', itemId: 'EQ-005', qty: 4, startDate: '2026-10-20', endDate: '2026-10-22', total: 3000000, status: 'Menunggu Pembayaran' },
+    { id: 'ORD-005', customerId: 'CST-001', itemId: 'EQ-006', qty: 1, startDate: '2026-10-18', endDate: '2026-10-19', total: 1000000, status: 'Sedang Disewa' }
+];
+
+// ===== HELPERS =====
+function formatRp(num) {
+    return 'Rp ' + Number(num).toLocaleString('id-ID');
+}
+
+function generateId(prefix, dataArray) {
+    var max = 0;
+    for (var i = 0; i < dataArray.length; i++) {
+        var n = parseInt(dataArray[i].id.split('-')[1]) || 0;
+        if (n > max) max = n;
+    }
+    return prefix + '-' + String(max + 1).padStart(3, '0');
+}
+
+function getCustomerById(id) {
+    for (var i = 0; i < customersData.length; i++) {
+        if (customersData[i].id === id) return customersData[i];
+    }
+    return { name: '-', phone: '-', email: '-', address: '-' };
+}
+
+function getItemById(id) {
+    for (var i = 0; i < inventoryData.length; i++) {
+        if (inventoryData[i].id === id) return inventoryData[i];
+    }
+    return { name: '-', price: 0, category: '-' };
+}
+
+function getDaysBetween(start, end) {
+    var d1 = new Date(start);
+    var d2 = new Date(end);
+    var diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+    return diff > 0 ? diff : 1;
+}
+
+// ===== GOOGLE SHEETS SYNC =====
+async function syncToSheet(action, sheetTab, rowData) {
+    if (!SHEET_API_URL) {
+        saveToLocalStorage();
+        return;
+    }
+    try {
+        var response = await fetch(SHEET_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: action, sheet: sheetTab, data: rowData })
+        });
+        var result = await response.json();
+        console.log('Sync ' + sheetTab + ':', result);
+    } catch (err) {
+        console.warn('Gagal sync ke Sheets:', err);
+        saveToLocalStorage();
+    }
+}
+
+async function loadFromSheet() {
+    if (!SHEET_API_URL) { loadFromLocalStorage(); return; }
+    try {
+        var res = await fetch(SHEET_API_URL + '?action=getAll');
+        var data = await res.json();
+        if (data.alat && data.alat.length) inventoryData = data.alat;
+        if (data.pelanggan && data.pelanggan.length) customersData = data.pelanggan;
+        if (data.transaksi && data.transaksi.length) ordersData = data.transaksi;
+    } catch (err) {
+        console.warn('Gagal load dari Sheets:', err);
+        loadFromLocalStorage();
+    }
+}
+
+// ===== LOCAL STORAGE =====
+function saveToLocalStorage() {
+    localStorage.setItem('eztafest_inventory', JSON.stringify(inventoryData));
+    localStorage.setItem('eztafest_customers', JSON.stringify(customersData));
+    localStorage.setItem('eztafest_orders', JSON.stringify(ordersData));
+}
+
+function loadFromLocalStorage() {
+    var inv = localStorage.getItem('eztafest_inventory');
+    var cust = localStorage.getItem('eztafest_customers');
+    var ord = localStorage.getItem('eztafest_orders');
+    if (inv) inventoryData = JSON.parse(inv);
+    if (cust) customersData = JSON.parse(cust);
+    if (ord) ordersData = JSON.parse(ord);
+}
+
