@@ -1,515 +1,327 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ClipboardList, 
-  Calendar as CalendarIcon, 
-  Settings, 
-  Printer, 
-  MessageCircle, 
-  X,
-  ChevronLeft,
-  ChevronRight,
-  TrendingUps
-} from 'lucide-react';
-
-const MOCK_INVENTORY = [
-  { id: 'INV-001', name: 'Speaker Aktif Yamaha 15"', category: 'Sound', total: 10, inUse: 2, maintenance: 0, price: 150000 },
-  { id: 'INV-002', name: 'Mic Wireless Shure', category: 'Sound', total: 20, inUse: 5, maintenance: 1, price: 50000 },
-  { id: 'INV-003', name: 'Lampu Par LED 54x3W', category: 'Lighting', total: 30, inUse: 10, maintenance: 2, price: 40000 },
-  { id: 'INV-004', name: 'Tenda Sarnafil 3x3', category: 'Tenda', total: 15, inUse: 4, maintenance: 0, price: 200000 },
-  { id: 'INV-005', name: 'Kabel XLR 10m', category: 'Aksesoris', total: 50, inUse: 20, maintenance: 0, price: 10000 },
-];
-
-const MOCK_ORDERS = [
-  { id: 'ORD-1001', client: 'PT Maju Bersama', phone: '6281234567890', item: 'Speaker Aktif Yamaha 15"', qty: 2, date: '2026-10-15', returnDate: '2026-10-16', status: 'Disewa', payment: 'Lunas', total: 300000 },
-  { id: 'ORD-1002', client: 'Budi Santoso', phone: '6289876543210', item: 'Tenda Sarnafil 3x3', qty: 4, date: '2026-10-18', returnDate: '2026-10-20', status: 'DP', payment: 'Belum Lunas', total: 2400000 },
-  { id: 'ORD-1003', client: 'Event Organizer X', phone: '628111222333', item: 'Lampu Par LED 54x3W', qty: 10, date: '2026-10-12', returnDate: '2026-10-13', status: 'Selesai', payment: 'Lunas', total: 400000 },
-  { id: 'ORD-1004', client: 'Dina (Pernikahan)', phone: '628555666777', item: 'Mic Wireless Shure', qty: 2, date: '2026-10-25', returnDate: '2026-10-26', status: 'Menunggu', payment: 'DP', total: 100000 },
-];
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [inventory, setInventory] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
-
-  // URL DARI GOOGLE APPS SCRIPT ANDA 
-  // Ganti string di bawah dengan URL dari langkah deployment saat Anda sudah siap.
-  const API_URL = "ISI_DENGAN_URL_WEB_APP_GOOGLE_SCRIPT_ANDA";
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        // Jika URL belum disetting (masih default), gunakan MOCK_DATA agar web tidak error
-        if (API_URL === "ISI_DENGAN_URL_WEB_APP_GOOGLE_SCRIPT_ANDA" || !API_URL) {
-          console.log("Menggunakan Data Dummy Lokal...");
-          setInventory(MOCK_INVENTORY);
-          setOrders(MOCK_ORDERS);
-          setLoading(false);
-          return;
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eztafest Admin Dashboard</title>
+    <!-- Memuat Tailwind CSS langsung dari CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Icons dari Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Pengaturan khusus saat Nota di-print */
+        @media print {
+            body { background: white; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .modal-content { box-shadow: none; max-width: 100%; margin: 0; padding: 0; }
         }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans flex h-screen overflow-hidden">
 
-        // Lakukan Fetch ke Google Sheets API
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        
-        setInventory(data.inventory || []);
-        setOrders(data.orders || []);
-      } catch (error) {
-        console.error("Gagal mengambil data dari Spreadsheet:", error);
-        // Fallback ke data dummy jika terjadi error (misal koneksi putus/limit API)
-        setInventory(MOCK_INVENTORY);
-        setOrders(MOCK_ORDERS);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleSendWA = (order) => {
-    // Membuat template pesan WhatsApp yang rapi
-    const message = `Halo ${order.client},\n\nBerikut adalah detail tagihan sewa alat event Anda di *Eztafest*:\n\n*ID Pesanan:* ${order.id}\n*Alat:* ${order.item} (x${order.qty})\n*Tgl Sewa:* ${order.date}\n*Tgl Kembali:* ${order.returnDate}\n*Total Biaya:* Rp ${order.total.toLocaleString('id-ID')}\n*Status Pembayaran:* ${order.payment}\n\nTerima kasih telah mempercayakan event Anda kepada kami!🙏`;
-    
-    // Format pesan ke dalam URL WhatsApp API
-    const encodedMessage = encodeURIComponent(message);
-    const waUrl = `https://wa.me/${order.phone}?text=${encodedMessage}`;
-    
-    // Buka WhatsApp di tab baru
-    window.open(waUrl, '_blank');
-  };
-
-  const renderDashboard = () => {
-    const totalPendapatan = orders.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
-    const activeOrders = orders.filter(o => o.status === 'Disewa' || o.status === 'DP').length;
-    const itemsInUse = inventory.reduce((sum, item) => sum + (Number(item.inUse) || 0), 0);
-
-    return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-800">Ringkasan Operasional</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-lg"><TrendingUp size={24} /></div>
-            <div>
-              <p className="text-sm text-gray-500">Estimasi Pendapatan</p>
-              <h3 className="text-2xl font-bold">Rp {totalPendapatan.toLocaleString('id-ID')}</h3>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
-            <div className="p-3 bg-orange-100 text-orange-600 rounded-lg"><ClipboardList size={24} /></div>
-            <div>
-              <p className="text-sm text-gray-500">Pesanan Aktif (Sewa/DP)</p>
-              <h3 className="text-2xl font-bold">{activeOrders} Transaksi</h3>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
-            <div className="p-3 bg-purple-100 text-purple-600 rounded-lg"><Package size={24} /></div>
-            <div>
-              <p className="text-sm text-gray-500">Total Alat Disewa</p>
-              <h3 className="text-2xl font-bold">{itemsInUse} Unit</h3>
-            </div>
-          </div>
+    <!-- SIDEBAR -->
+    <div class="w-64 bg-indigo-900 text-white flex flex-col no-print">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold tracking-wider">Eztafest.</h1>
+            <p class="text-indigo-200 text-sm mt-1">Admin Dashboard</p>
         </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <h3 className="text-lg font-bold">Pesanan Berjalan Terbaru</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50 text-gray-600 text-sm">
-                <tr>
-                  <th className="p-4">Klien</th>
-                  <th className="p-4">Alat (Qty)</th>
-                  <th className="p-4">Tanggal Sewa</th>
-                  <th className="p-4">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {orders.filter(o => o.status !== 'Selesai').slice(0, 5).map((order, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="p-4 font-medium">{order.client}</td>
-                    <td className="p-4 text-sm">{order.item} <span className="font-bold">(x{order.qty})</span></td>
-                    <td className="p-4 text-sm">{order.date} <span className="text-gray-400">s/d</span> {order.returnDate}</td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'Disewa' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderInventory = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Katalog Alat</h2>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-          + Tambah Alat (Via Sheet)
-        </button>
-      </div>
-      
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-600 text-sm">
-              <tr>
-                <th className="p-4">ID</th>
-                <th className="p-4">Nama Alat</th>
-                <th className="p-4">Kategori</th>
-                <th className="p-4 text-center">Total</th>
-                <th className="p-4 text-center">Sedang Disewa</th>
-                <th className="p-4 text-center">Tersedia</th>
-                <th className="p-4 text-right">Harga / Hari</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {inventory.map((item, i) => {
-                const available = Number(item.total) - Number(item.inUse) - Number(item.maintenance);
-                return (
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="p-4 text-sm text-gray-500">{item.id}</td>
-                    <td className="p-4 font-medium">{item.name}</td>
-                    <td className="p-4 text-sm">
-                      <span className="bg-gray-100 px-2 py-1 rounded text-xs">{item.category}</span>
-                    </td>
-                    <td className="p-4 text-center">{item.total}</td>
-                    <td className="p-4 text-center text-orange-600 font-medium">{item.inUse}</td>
-                    <td className="p-4 text-center text-green-600 font-bold">{available}</td>
-                    <td className="p-4 text-right">Rp {Number(item.price).toLocaleString('id-ID')}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderOrders = () => (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Manajemen Pesanan & Nota</h2>
-      
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-600 text-sm">
-              <tr>
-                <th className="p-4">ID Order</th>
-                <th className="p-4">Klien & Kontak</th>
-                <th className="p-4">Detail Sewa</th>
-                <th className="p-4">Periode</th>
-                <th className="p-4">Pembayaran</th>
-                <th className="p-4 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {orders.map((order, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="p-4 text-sm text-gray-500">{order.id}</td>
-                  <td className="p-4">
-                    <div className="font-medium">{order.client}</div>
-                    <div className="text-xs text-gray-500">+{order.phone}</div>
-                  </td>
-                  <td className="p-4 text-sm">
-                    {order.item} <br/> <span className="font-bold text-gray-700">x{order.qty}</span>
-                  </td>
-                  <td className="p-4 text-sm">
-                    {order.date} <br/><span className="text-gray-400">s/d</span> {order.returnDate}
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${order.payment === 'Lunas' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {order.payment}
-                    </span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <button 
-                      onClick={() => setSelectedInvoice(order)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium border border-blue-200 px-3 py-1 rounded shadow-sm hover:bg-blue-50 transition-colors"
-                    >
-                      Buka Nota
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderCalendar = () => {
-    // Mendapatkan tanggal saat ini untuk setup kalender awal
-    const year = 2026;
-    const month = 9; // 0-indexed (9 = Oktober)
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Minggu
-
-    const days = [];
-    // Mengisi cell kosong sebelum tanggal 1
-    for (let i = 0; i < firstDayIndex; i++) {
-      days.push(null);
-    }
-    // Mengisi tanggal asli dalam sebulan
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(i);
-    }
-
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-800">Kalender Sewa & Booking</h2>
-          <div className="flex items-center space-x-4 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <button className="p-1 hover:bg-gray-100 rounded text-gray-500"><ChevronLeft size={20}/></button>
-            <span className="font-bold text-lg text-gray-700">Oktober 2026</span>
-            <button className="p-1 hover:bg-gray-100 rounded text-gray-500"><ChevronRight size={20}/></button>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header Hari dalam Seminggu */}
-          <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
-            {['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((d, i) => (
-              <div key={i} className="py-3 text-center text-sm font-bold text-gray-600 border-r last:border-r-0">
-                {d}
-              </div>
-            ))}
-          </div>
-
-          {/* Grid Tanggal Kalender */}
-          <div className="grid grid-cols-7 border-b border-gray-200 auto-rows-[130px]">
-            {days.map((day, i) => {
-              // Logic mengecek pesanan apa yang aktif di tanggal (day) ini
-              const dayOrders = day ? orders.filter(o => {
-                // Memecah format string (YYYY-MM-DD)
-                const startDay = parseInt(o.date.split('-')[2], 10);
-                const endDay = parseInt(o.returnDate.split('-')[2], 10);
-                // Menentukan rentang tanggal
-                return day >= startDay && day <= endDay;
-              }) : [];
-
-              return (
-                <div key={i} className={`border-r border-b border-gray-100 p-2 overflow-y-auto ${!day ? 'bg-gray-50' : 'hover:bg-gray-50 transition-colors'}`}>
-                  {day && (
-                    <>
-                      <div className="text-right text-sm font-bold text-gray-500 mb-2">{day}</div>
-                      <div className="space-y-1.5">
-                        {dayOrders.map((o, idx) => (
-                          <div 
-                            key={idx} 
-                            onClick={() => setSelectedInvoice(o)}
-                            className="bg-blue-50 border border-blue-100 text-blue-800 text-[11px] p-1.5 rounded truncate cursor-pointer hover:bg-blue-100 hover:border-blue-200 transition-colors flex flex-col leading-tight"
-                            title={`${o.client} - ${o.item} (x${o.qty})`}
-                          >
-                            <span className="font-bold truncate">{o.client}</span>
-                            <span className="truncate text-gray-600">{o.item} (x{o.qty})</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const InvoiceModal = () => {
-    if (!selectedInvoice) return null;
-    
-    return (
-      <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 print:p-0 print:bg-white print:static backdrop-blur-sm">
-        <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl print:max-h-none print:shadow-none print:w-full">
-          
-          {/* Header Modal (Tidak tercetak) */}
-          <div className="flex justify-between items-center p-5 border-b border-gray-100 print:hidden sticky top-0 bg-white z-10">
-            <h3 className="font-bold text-lg text-gray-800">Detail Invoice</h3>
-            <button onClick={() => setSelectedInvoice(null)} className="p-2 hover:bg-red-50 text-gray-500 hover:text-red-500 rounded-full transition-colors">
-              <X size={24}/>
+        <nav class="flex-1 mt-6" id="sidebar-nav">
+            <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center px-6 py-3 bg-indigo-800 border-l-4 border-indigo-400" data-target="dashboard">
+                <i data-lucide="home" class="mr-3 w-5 h-5"></i> Dashboard
             </button>
-          </div>
-          
-          {/* Konten Nota yang akan di-print */}
-          <div className="p-8 print:p-4">
-            <div className="text-center border-b-2 border-gray-800 pb-6 mb-8">
-              <h1 className="text-4xl font-black tracking-tight text-blue-900">EZTAFEST</h1>
-              <p className="text-gray-500 tracking-wide mt-1">Rental Alat Event & Multimedia</p>
-              <p className="text-sm text-gray-400 mt-2">Jl. Event Sukses No. 123, Jakarta Raya</p>
+            <button onclick="switchTab('inventory')" class="tab-btn w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition" data-target="inventory">
+                <i data-lucide="package" class="mr-3 w-5 h-5"></i> Katalog Alat
+            </button>
+            <button onclick="switchTab('orders')" class="tab-btn w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition" data-target="orders">
+                <i data-lucide="shopping-cart" class="mr-3 w-5 h-5"></i> Pesanan & Nota
+            </button>
+            <button onclick="switchTab('calendar')" class="tab-btn w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition" data-target="calendar">
+                <i data-lucide="calendar" class="mr-3 w-5 h-5"></i> Kalender Alat
+            </button>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col overflow-hidden w-full">
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center no-print">
+            <h2 id="page-title" class="text-xl font-semibold text-gray-800 capitalize">Dashboard</h2>
+        </header>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
+            
+            <!-- SECTION: DASHBOARD -->
+            <div id="dashboard" class="tab-content grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-gray-500 text-sm font-medium">Total Pendapatan (Bulan Ini)</h3>
+                    <p class="text-3xl font-bold text-gray-800 mt-2">Rp 1.200.000</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-gray-500 text-sm font-medium">Pesanan Aktif</h3>
+                    <p id="dash-orders-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-gray-500 text-sm font-medium">Alat Tersedia</h3>
+                    <p id="dash-avail-count" class="text-3xl font-bold text-gray-800 mt-2">0</p>
+                </div>
+            </div>
+
+            <!-- SECTION: INVENTORY -->
+            <div id="inventory" class="tab-content hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200 text-sm">
+                            <th class="p-4 font-semibold text-gray-600">ID Alat</th>
+                            <th class="p-4 font-semibold text-gray-600">Nama</th>
+                            <th class="p-4 font-semibold text-gray-600">Kategori</th>
+                            <th class="p-4 font-semibold text-gray-600">Stok (Tersedia/Total)</th>
+                            <th class="p-4 font-semibold text-gray-600">Harga / Hari</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- SECTION: ORDERS -->
+            <div id="orders" class="tab-content hidden bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200 text-sm">
+                            <th class="p-4 font-semibold text-gray-600">ID Pesanan</th>
+                            <th class="p-4 font-semibold text-gray-600">Pelanggan</th>
+                            <th class="p-4 font-semibold text-gray-600">Alat</th>
+                            <th class="p-4 font-semibold text-gray-600">Tanggal Sewa</th>
+                            <th class="p-4 font-semibold text-gray-600">Status</th>
+                            <th class="p-4 font-semibold text-gray-600">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- SECTION: CALENDAR -->
+            <div id="calendar" class="tab-content hidden bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-bold mb-4">Oktober 2026</h2>
+                <div class="grid grid-cols-7 gap-2" id="calendar-grid">
+                    <!-- Calendar days will be generated by JS -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- INVOICE MODAL -->
+    <div id="invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div class="flex justify-between items-center p-6 border-b border-gray-200 no-print">
+                <h3 class="text-lg font-semibold">Detail Nota</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x"></i>
+                </button>
             </div>
             
-            <div className="flex justify-between mb-10">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Kepada Yth:</p>
-                <h4 className="font-bold text-xl text-gray-800">{selectedInvoice.client}</h4>
-                <p className="text-sm text-gray-600 mt-1">WA: +{selectedInvoice.phone}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500 mb-1">No. Invoice:</p>
-                <h4 className="font-bold text-lg text-gray-800">{selectedInvoice.id}</h4>
-                <p className="text-sm text-gray-500 mt-3 mb-1">Periode Sewa:</p>
-                <p className="font-semibold text-sm bg-gray-50 px-3 py-1 rounded inline-block">
-                  {selectedInvoice.date} <span className="text-gray-400 mx-1">s/d</span> {selectedInvoice.returnDate}
-                </p>
-              </div>
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-indigo-900">Eztafest.</h1>
+                        <p class="text-gray-500 mt-1">Sewa Alat Event Profesional</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-xl text-gray-800">INVOICE</p>
+                        <p class="text-gray-500" id="inv-id">#</p>
+                    </div>
+                </div>
+
+                <div class="mb-8 grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500 font-semibold uppercase">Ditagihkan Kepada:</p>
+                        <p class="font-bold text-gray-800 mt-1" id="inv-name">-</p>
+                        <p class="text-gray-600" id="inv-phone">-</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500 font-semibold uppercase">Periode Sewa:</p>
+                        <p class="font-medium text-gray-800 mt-1" id="inv-start">-</p>
+                        <p class="font-medium text-gray-800" id="inv-end">s/d -</p>
+                    </div>
+                </div>
+
+                <table class="w-full text-left border-collapse mb-8">
+                    <thead>
+                        <tr class="bg-gray-100 border-y border-gray-300">
+                            <th class="py-3 px-4 font-semibold text-gray-700">Deskripsi Alat</th>
+                            <th class="py-3 px-4 font-semibold text-gray-700 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-4 px-4 text-gray-800" id="inv-item">-</td>
+                            <td class="py-4 px-4 text-gray-800 text-right" id="inv-total">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="flex justify-end mb-8">
+                    <div class="w-1/2">
+                        <div class="flex justify-between py-2 text-xl font-bold">
+                            <span class="text-indigo-900">Total Akhir</span>
+                            <span class="text-indigo-900" id="inv-grandtotal">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4 border-t border-gray-200 pt-6 no-print">
+                    <button id="btn-wa" class="flex items-center px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                        <i data-lucide="message-circle" class="mr-2 w-4 h-4"></i> Kirim ke WA
+                    </button>
+                    <button onclick="window.print()" class="flex items-center px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+                        <i data-lucide="printer" class="mr-2 w-4 h-4"></i> Cetak Dokumen
+                    </button>
+                </div>
             </div>
-
-            <table className="w-full mb-8 text-sm">
-              <thead className="bg-gray-100 border-t border-b border-gray-300">
-                <tr>
-                  <th className="p-4 text-left font-bold text-gray-700">Deskripsi Alat</th>
-                  <th className="p-4 text-center font-bold text-gray-700">Jumlah</th>
-                  <th className="p-4 text-right font-bold text-gray-700">Total Harga</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                <tr>
-                  <td className="p-4 font-medium text-gray-800">{selectedInvoice.item}</td>
-                  <td className="p-4 text-center">{selectedInvoice.qty} Unit</td>
-                  <td className="p-4 text-right">Rp {selectedInvoice.total.toLocaleString('id-ID')}</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan="2" className="p-4 text-right font-bold text-gray-700 border-t border-gray-300">Grand Total</td>
-                  <td className="p-4 text-right font-black text-xl text-gray-900 border-t border-gray-300">Rp {selectedInvoice.total.toLocaleString('id-ID')}</td>
-                </tr>
-                <tr>
-                  <td colSpan="2" className="p-4 text-right font-medium text-gray-500 pt-0">Status Pembayaran</td>
-                  <td className={`p-4 text-right font-bold text-lg pt-0 ${selectedInvoice.payment === 'Lunas' ? 'text-green-600' : 'text-red-600'}`}>
-                    {selectedInvoice.payment}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-
-            <div className="text-sm text-gray-500 text-center mt-16 print:mt-32">
-              <p className="font-medium text-gray-800 mb-1">Terima kasih telah menyewa di Eztafest.</p>
-              <p>Harap kembalikan alat tepat waktu untuk menghindari denda keterlambatan.</p>
-            </div>
-          </div>
-
-          {/* Tombol Aksi (Tidak tercetak) */}
-          <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-end space-x-4 print:hidden">
-            <button 
-              onClick={() => handleSendWA(selectedInvoice)}
-              className="flex items-center px-5 py-2.5 bg-[#25D366] text-white rounded-xl font-medium hover:bg-[#20b858] transition-colors shadow-sm"
-            >
-              <MessageCircle size={20} className="mr-2"/> Kirim Invoice via WA
-            </button>
-            <button 
-              onClick={handlePrint}
-              className="flex items-center px-5 py-2.5 bg-gray-800 text-white rounded-xl font-medium hover:bg-gray-900 transition-colors shadow-sm"
-            >
-              <Printer size={20} className="mr-2"/> Cetak Kertas Nota
-            </button>
-          </div>
         </div>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-gray-500 font-medium tracking-wide">Menyinkronkan dengan Database Sheets...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] flex font-sans text-gray-800">
-      
-      {/* Sidebar Navigasi (Sembunyi saat print) */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col print:hidden sticky top-0 h-screen">
-        <div className="p-6 border-b border-gray-100">
-          <h1 className="text-2xl font-black tracking-tight text-blue-900">EZTAFEST</h1>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-1">Admin Panel</p>
-        </div>
-        
-        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
-          <button 
-            onClick={() => setActiveTab('dashboard')} 
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-            <LayoutDashboard size={20} />
-            <span className="font-medium">Dashboard</span>
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('inventory')} 
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'inventory' ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-            <Package size={20} />
-            <span className="font-medium">Katalog Alat</span>
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('orders')} 
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'orders' ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-            <ClipboardList size={20} />
-            <span className="font-medium">Pesanan & Nota</span>
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('calendar')} 
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'calendar' ? 'bg-blue-50 text-blue-700 shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
-          >
-            <CalendarIcon size={20} />
-            <span className="font-medium">Kalender Rental</span>
-          </button>
-        </nav>
-
-        <div className="p-4 border-t border-gray-100 bg-gray-50">
-          <div className="flex items-center space-x-3 px-4 py-3 text-gray-500 rounded-xl">
-            <Settings size={20} />
-            <div className="text-left">
-              <p className="font-medium text-sm text-gray-700">Terkoneksi ke:</p>
-              <p className="text-xs truncate w-32">Google Sheets</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Area Konten Utama */}
-      <main className="flex-1 p-8 overflow-y-auto print:p-0 print:m-0 w-full">
-        <div className="max-w-6xl mx-auto print:max-w-none">
-          {activeTab === 'dashboard' && renderDashboard()}
-          {activeTab === 'inventory' && renderInventory()}
-          {activeTab === 'orders' && renderOrders()}
-          {activeTab === 'calendar' && renderCalendar()}
-        </div>
-      </main>
-
-      {/* Modal Render */}
-      <InvoiceModal />
     </div>
-  );
-}
+
+    <!-- CORE JAVASCRIPT -->
+    <script>
+        // Data Dummy (Bisa diganti fetch dari Google Sheets nantinya)
+        const inventoryData = [
+            { id: 'EQ-01', name: 'Speaker Aktif 15 Inch', category: 'Sound System', stock: 10, available: 8, price: 150000 },
+            { id: 'EQ-02', name: 'Tenda Sarnafil 3x3', category: 'Tenda', stock: 5, available: 2, price: 300000 },
+            { id: 'EQ-03', name: 'Lampu Par LED', category: 'Lighting', stock: 20, available: 20, price: 75000 }
+        ];
+
+        const ordersData = [
+            { id: 'ORD-001', customer: 'Budi Santoso', phone: '6281234567890', item: 'Speaker Aktif 15 Inch', startDate: '2026-10-15', endDate: '2026-10-16', total: 300000, status: 'Menunggu Pembayaran' },
+            { id: 'ORD-002', customer: 'Siti Aminah', phone: '6289876543210', item: 'Tenda Sarnafil 3x3', startDate: '2026-10-12', endDate: '2026-10-14', total: 900000, status: 'Sedang Disewa' }
+        ];
+
+        let selectedOrder = null;
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Format Currency
+        const formatRp = (num) => 'Rp ' + num.toLocaleString('id-ID');
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.getElementById('page-title').innerText = tabId.charAt(0).toUpperCase() + tabId.slice(1).replace('-', ' ');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.target === tabId) {
+                    btn.className = 'tab-btn w-full flex items-center px-6 py-3 bg-indigo-800 border-l-4 border-indigo-400';
+                } else {
+                    btn.className = 'tab-btn w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition';
+                }
+            });
+        }
+
+        // Render Data
+        function renderApp() {
+            // Dashboard Math
+            document.getElementById('dash-orders-count').innerText = ordersData.length;
+            const availableCount = inventoryData.reduce((acc, item) => acc + item.available, 0);
+            document.getElementById('dash-avail-count').innerText = availableCount;
+
+            // Render Inventory Table
+            const invTbody = document.getElementById('inventory-tbody');
+            invTbody.innerHTML = inventoryData.map(item => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="p-4 text-sm font-medium text-gray-800">${item.id}</td>
+                    <td class="p-4 text-sm text-gray-600">${item.name}</td>
+                    <td class="p-4 text-sm text-gray-600">${item.category}</td>
+                    <td class="p-4 text-sm text-gray-600">${item.available} / ${item.stock}</td>
+                    <td class="p-4 text-sm text-gray-600">${formatRp(item.price)}</td>
+                </tr>
+            `).join('');
+
+            // Render Orders Table
+            const ordTbody = document.getElementById('orders-tbody');
+            ordTbody.innerHTML = ordersData.map((order, index) => {
+                const statusColor = order.status === 'Sedang Disewa' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800';
+                return `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="p-4 text-sm font-medium text-gray-800">${order.id}</td>
+                    <td class="p-4 text-sm text-gray-600">${order.customer}<br><span class="text-xs text-gray-400">WA: ${order.phone}</span></td>
+                    <td class="p-4 text-sm text-gray-600">${order.item}</td>
+                    <td class="p-4 text-sm text-gray-600">${order.startDate} s/d ${order.endDate}</td>
+                    <td class="p-4 text-sm"><span class="px-2 py-1 rounded-full text-xs ${statusColor}">${order.status}</span></td>
+                    <td class="p-4 text-sm">
+                        <button onclick="openModal(${index})" class="flex items-center text-indigo-600 hover:text-indigo-800">
+                            <i data-lucide="printer" class="w-4 h-4 mr-1"></i> Cetak
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+            lucide.createIcons(); // Re-init icons for dynamic content
+
+            // Render Calendar
+            const calGrid = document.getElementById('calendar-grid');
+            let calHtml = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => 
+                `<div class="text-center font-semibold text-gray-500 py-2">${day}</div>`
+            ).join('');
+            
+            calHtml += `<div class="col-span-4"></div>`; // Padding for Oct 2026 starts Thursday
+            
+            for(let i = 1; i <= 31; i++) {
+                const dateStr = `2026-10-${String(i).padStart(2, '0')}`;
+                const activeBookings = ordersData.filter(o => dateStr >= o.startDate && dateStr <= o.endDate);
+                
+                let bookingsHtml = activeBookings.map((b, idx) => 
+                    `<div onclick="openModalById('${b.id}')" class="text-xs bg-indigo-100 text-indigo-800 p-1 rounded cursor-pointer mt-1 truncate">${b.item.substring(0, 10)}...</div>`
+                ).join('');
+
+                calHtml += `
+                    <div class="border border-gray-200 rounded p-2 min-h-[80px]">
+                        <span class="text-sm font-semibold text-gray-700">${i}</span>
+                        ${bookingsHtml}
+                    </div>
+                `;
+            }
+            calGrid.innerHTML = calHtml;
+        }
+
+        // Modal Logic
+        function openModal(orderIndex) {
+            selectedOrder = ordersData[orderIndex];
+            populateModal();
+        }
+        
+        function openModalById(orderId) {
+            selectedOrder = ordersData.find(o => o.id === orderId);
+            populateModal();
+        }
+
+        function populateModal() {
+            document.getElementById('inv-id').innerText = '#' + selectedOrder.id;
+            document.getElementById('inv-name').innerText = selectedOrder.customer;
+            document.getElementById('inv-phone').innerText = 'WA: ' + selectedOrder.phone;
+            document.getElementById('inv-start').innerText = selectedOrder.startDate;
+            document.getElementById('inv-end').innerText = 's/d ' + selectedOrder.endDate;
+            document.getElementById('inv-item').innerText = selectedOrder.item;
+            document.getElementById('inv-total').innerText = formatRp(selectedOrder.total);
+            document.getElementById('inv-grandtotal').innerText = formatRp(selectedOrder.total);
+            
+            document.getElementById('invoice-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('invoice-modal').classList.add('hidden');
+            selectedOrder = null;
+        }
+
+        // WhatsApp Sender
+        document.getElementById('btn-wa').addEventListener('click', () => {
+            if(!selectedOrder) return;
+            const msg = `Halo ${selectedOrder.customer}, ini dari Eztafest.\n\nBerikut rincian pesanan Anda:\nID: ${selectedOrder.id}\nAlat: ${selectedOrder.item}\nTanggal: ${selectedOrder.startDate} s/d ${selectedOrder.endDate}\nTotal Tagihan: ${formatRp(selectedOrder.total)}\n\nMohon segera menyelesaikan pembayaran. Terima kasih!`;
+            window.open(`https://wa.me/${selectedOrder.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        });
+
+        // Initialize App
+        renderApp();
+    </script>
+</body>
+</html>
