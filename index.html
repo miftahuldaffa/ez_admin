@@ -13,38 +13,35 @@
 </head>
 <body class="bg-gray-50 font-sans">
 
-<!-- LOADING OVERLAY -->
 <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[60] flex items-center justify-center hidden">
     <div class="text-center">
         <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-3"></div>
         <p class="text-sm text-gray-500">Memuat data dari spreadsheet...</p>
     </div>
 </div>
-
-<!-- TOAST CONTAINER -->
 <div id="toast-container" class="fixed top-4 right-4 z-[70] flex flex-col gap-2"></div>
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <div class="flex h-screen overflow-hidden">
 
-<!-- ==================== SIDEBAR ==================== -->
-<aside class="sidebar w-64 text-white flex flex-col flex-shrink-0">
-    <div class="p-6 border-b border-indigo-700/50">
-        <h1 class="text-2xl font-extrabold tracking-tight">Eztafest<span class="text-orange-400">.</span></h1>
-        <p class="text-xs text-indigo-300 mt-1">Rental Alat Event • Semarang</p>
+<aside class="sidebar text-white flex-shrink-0">
+<div class="sidebar-inner">
+    <div class="p-6 border-b border-indigo-700/50 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-extrabold tracking-tight">Eztafest<span class="text-orange-400">.</span></h1>
+            <p class="text-xs text-indigo-300 mt-1">Rental Alat Event • Semarang</p>
+        </div>
+        <button onclick="closeSidebar()" class="md:hidden p-1 hover:bg-indigo-600 rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
     </div>
     <nav class="flex-1 py-4 space-y-1 overflow-y-auto">
-        <button onclick="switchTab('dashboard')" data-target="dashboard" class="tab-btn active w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
-            <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
-        <button onclick="switchTab('katalog')" data-target="katalog" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
-            <i data-lucide="box" class="w-5 h-5"></i> Katalog Alat</button>
-        <button onclick="switchTab('pelanggan')" data-target="pelanggan" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
-            <i data-lucide="users" class="w-5 h-5"></i> Pelanggan</button>
-        <button onclick="switchTab('transaksi')" data-target="transaksi" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
-            <i data-lucide="receipt" class="w-5 h-5"></i> Transaksi</button>
-        <button onclick="switchTab('kalender')" data-target="kalender" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
-            <i data-lucide="calendar-days" class="w-5 h-5"></i> Kalender Sewa</button>
-        <button onclick="switchTab('laporan')" data-target="laporan" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium">
-            <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Laporan</button>
+        <button onclick="switchTab('dashboard')" data-target="dashboard" class="tab-btn active w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
+        <button onclick="switchTab('katalog')" data-target="katalog" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="box" class="w-5 h-5"></i> Katalog Alat</button>
+        <button onclick="switchTab('pelanggan')" data-target="pelanggan" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="users" class="w-5 h-5"></i> Pelanggan</button>
+        <button onclick="switchTab('transaksi')" data-target="transaksi" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="receipt" class="w-5 h-5"></i> Transaksi</button>
+        <button onclick="switchTab('kalender')" data-target="kalender" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="calendar-days" class="w-5 h-5"></i> Kalender Sewa</button>
+        <button onclick="switchTab('laporan')" data-target="laporan" class="tab-btn w-full flex items-center gap-3 px-6 py-3 text-sm font-medium"><i data-lucide="bar-chart-3" class="w-5 h-5"></i> Laporan</button>
     </nav>
     <div class="p-4 border-t border-indigo-700/50">
         <div class="flex items-center gap-3">
@@ -52,25 +49,25 @@
             <div><p class="text-sm font-semibold">Admin</p><p class="text-xs text-indigo-300">eztafest.com</p></div>
         </div>
     </div>
+</div>
 </aside>
 
-<!-- ==================== MAIN ==================== -->
 <main class="flex-1 overflow-y-auto">
 <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
     <div class="flex items-center gap-4">
         <button onclick="toggleSidebar()" class="toggle-btn" title="Toggle Menu">
-            <i data-lucide="panel-left-close" id="toggle-icon" class="w-5 h-5 text-gray-600"></i>
+            <i data-lucide="menu" id="toggle-icon" class="w-5 h-5 text-gray-600"></i>
         </button>
         <div>
             <h2 id="page-title" class="text-xl font-bold text-gray-800">Dashboard</h2>
-            <p id="page-subtitle" class="text-sm text-gray-400">Ringkasan bisnis Eztafest</p>
+            <p id="page-subtitle" class="text-sm text-gray-400 hidden sm:block">Ringkasan bisnis Eztafest</p>
         </div>
     </div>
-    <span id="current-date" class="text-sm text-gray-500"></span>
+    <span id="current-date" class="text-sm text-gray-500 hidden sm:inline"></span>
 </header>
 <div class="p-8">
 
-<!-- ==================== TAB: DASHBOARD ==================== -->
+<!-- DASHBOARD -->
 <section id="dashboard" class="tab-content">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
@@ -82,23 +79,17 @@
             <p id="dash-revenue" class="text-2xl font-bold text-gray-800 mt-1">Rp 0</p>
         </div>
         <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-6 h-6 text-orange-600"></i></div>
-            </div>
+            <div class="flex items-center justify-between mb-4"><div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center"><i data-lucide="clipboard-list" class="w-6 h-6 text-orange-600"></i></div></div>
             <p class="text-sm text-gray-500">Pesanan Aktif</p>
             <p id="dash-orders" class="text-2xl font-bold text-gray-800 mt-1">0</p>
         </div>
         <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center"><i data-lucide="package-check" class="w-6 h-6 text-emerald-600"></i></div>
-            </div>
+            <div class="flex items-center justify-between mb-4"><div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center"><i data-lucide="package-check" class="w-6 h-6 text-emerald-600"></i></div></div>
             <p class="text-sm text-gray-500">Alat Tersedia</p>
             <p id="dash-available" class="text-2xl font-bold text-gray-800 mt-1">0</p>
         </div>
         <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center"><i data-lucide="user-check" class="w-6 h-6 text-blue-600"></i></div>
-            </div>
+            <div class="flex items-center justify-between mb-4"><div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center"><i data-lucide="user-check" class="w-6 h-6 text-blue-600"></i></div></div>
             <p class="text-sm text-gray-500">Total Pelanggan</p>
             <p id="dash-customers" class="text-2xl font-bold text-gray-800 mt-1">0</p>
         </div>
@@ -121,15 +112,12 @@
     </div>
 </section>
 
-<!-- ==================== TAB: KATALOG ==================== -->
+<!-- KATALOG -->
 <section id="katalog" class="tab-content hidden">
-    <div class="flex items-center justify-between mb-6">
-        <div class="relative">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="search-katalog" onkeyup="renderKatalog()" placeholder="Cari alat..." class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
-        </div>
-        <button onclick="openAlatModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition">
-            <i data-lucide="plus" class="w-4 h-4"></i> Tambah Alat</button>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+        <div class="relative w-full sm:w-64"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="search-katalog" onkeyup="renderKatalog()" placeholder="Cari alat..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+        <button onclick="openAlatModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition w-full sm:w-auto justify-center"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Alat</button>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"><div class="overflow-x-auto">
         <table class="w-full"><thead><tr class="bg-gray-50 border-b border-gray-100">
@@ -145,15 +133,12 @@
     </div></div>
 </section>
 
-<!-- ==================== TAB: PELANGGAN ==================== -->
+<!-- PELANGGAN -->
 <section id="pelanggan" class="tab-content hidden">
-    <div class="flex items-center justify-between mb-6">
-        <div class="relative">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="search-pelanggan" onkeyup="renderPelanggan()" placeholder="Cari pelanggan..." class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
-        </div>
-        <button onclick="openCustomerModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition">
-            <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pelanggan</button>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+        <div class="relative w-full sm:w-64"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="search-pelanggan" onkeyup="renderPelanggan()" placeholder="Cari pelanggan..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+        <button onclick="openCustomerModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition w-full sm:w-auto justify-center"><i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pelanggan</button>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"><div class="overflow-x-auto">
         <table class="w-full"><thead><tr class="bg-gray-50 border-b border-gray-100">
@@ -168,15 +153,13 @@
     </div></div>
 </section>
 
-<!-- ==================== TAB: TRANSAKSI ==================== -->
+<!-- TRANSAKSI -->
 <section id="transaksi" class="tab-content hidden">
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-            <div class="relative">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="search-transaksi" onkeyup="renderTransaksi()" placeholder="Cari transaksi..." class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64">
-            </div>
-            <select id="filter-status" onchange="renderTransaksi()" class="border border-gray-200 rounded-xl text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+            <div class="relative w-full sm:w-64"><i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="search-transaksi" onkeyup="renderTransaksi()" placeholder="Cari transaksi..." class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <select id="filter-status" onchange="renderTransaksi()" class="w-full sm:w-auto border border-gray-200 rounded-xl text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <option value="">Semua Status</option>
                 <option value="Menunggu Pembayaran">Menunggu Pembayaran</option>
                 <option value="Sudah Bayar DP">Sudah Bayar DP</option>
@@ -187,8 +170,7 @@
                 <option value="Dibatalkan">Dibatalkan</option>
             </select>
         </div>
-        <button onclick="openOrderModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition">
-            <i data-lucide="plus" class="w-4 h-4"></i> Buat Pesanan</button>
+        <button onclick="openOrderModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition w-full sm:w-auto justify-center"><i data-lucide="plus" class="w-4 h-4"></i> Buat Pesanan</button>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"><div class="overflow-x-auto">
         <table class="w-full"><thead><tr class="bg-gray-50 border-b border-gray-100">
@@ -197,29 +179,28 @@
             <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Alat</th>
             <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Periode</th>
             <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Total</th>
-            <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Pembayaran</th>
+            <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Bayar</th>
             <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
-            <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Notes</th>
             <th class="text-left p-3 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
         </tr></thead><tbody id="transaksi-tbody"></tbody></table>
     </div></div>
 </section>
 
-<!-- ==================== TAB: KALENDER ==================== -->
+<!-- KALENDER -->
 <section id="kalender" class="tab-content hidden">
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
         <div class="flex items-center gap-4">
             <button onclick="changeMonth(-1)" class="p-2 hover:bg-gray-200 rounded-lg transition"><i data-lucide="chevron-left" class="w-5 h-5 text-gray-600"></i></button>
-            <h3 id="calendar-month-title" class="text-lg font-bold text-gray-800 min-w-[200px] text-center"></h3>
+            <h3 id="calendar-month-title" class="text-lg font-bold text-gray-800 min-w-[180px] text-center"></h3>
             <button onclick="changeMonth(1)" class="p-2 hover:bg-gray-200 rounded-lg transition"><i data-lucide="chevron-right" class="w-5 h-5 text-gray-600"></i></button>
         </div>
-        <div class="flex items-center gap-3 text-xs flex-wrap">
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-400 inline-block"></span> Menunggu</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-orange-400 inline-block"></span> DP</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 inline-block"></span> Disewa</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-purple-500 inline-block"></span> Diantar</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-cyan-500 inline-block"></span> Kembali</span>
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500 inline-block"></span> Selesai</span>
+        <div class="flex items-center gap-2 text-xs flex-wrap">
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-yellow-400 inline-block"></span>Menunggu</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-orange-400 inline-block"></span>DP</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 inline-block"></span>Disewa</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-purple-500 inline-block"></span>Antar</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-cyan-500 inline-block"></span>Kembali</span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-green-500 inline-block"></span>Selesai</span>
         </div>
     </div>
     <div class="bg-white rounded-2xl border border-gray-100 p-4">
@@ -227,32 +208,21 @@
     </div>
 </section>
 
-<!-- ==================== TAB: LAPORAN ==================== -->
+<!-- LAPORAN -->
 <section id="laporan" class="tab-content hidden">
     <div id="lap-summary" class="mb-6"></div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">📊 Status Pesanan</h3>
-            <div id="lap-status"></div>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">🏆 Alat Paling Laris</h3>
-            <div id="lap-top-items"></div>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-100 p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">⭐ Pelanggan Paling Aktif</h3>
-            <div id="lap-top-customers"></div>
-        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 p-6"><h3 class="text-lg font-bold text-gray-800 mb-4">📊 Status Pesanan</h3><div id="lap-status"></div></div>
+        <div class="bg-white rounded-2xl border border-gray-100 p-6"><h3 class="text-lg font-bold text-gray-800 mb-4">🏆 Alat Paling Laris</h3><div id="lap-top-items"></div></div>
+        <div class="bg-white rounded-2xl border border-gray-100 p-6"><h3 class="text-lg font-bold text-gray-800 mb-4">⭐ Pelanggan Paling Aktif</h3><div id="lap-top-customers"></div></div>
     </div>
 </section>
 
-</div><!-- end p-8 -->
+</div>
 </main>
-</div><!-- end flex -->
+</div>
 
-
-
-<!-- ==================== MODAL: TAMBAH/EDIT ALAT ==================== -->
+<!-- MODAL: ALAT -->
 <div id="modal-alat" class="modal-overlay hidden">
 <div class="modal-content bg-white rounded-2xl w-full max-w-lg mx-4">
     <div class="p-6 border-b border-gray-100 flex items-center justify-between">
@@ -261,55 +231,34 @@
     </div>
     <form id="form-alat" onsubmit="saveAlat(event)" class="p-6 space-y-4">
         <input type="hidden" id="alat-edit-index" value="-1">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Alat</label>
-            <input type="text" id="alat-nama" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Alat</label>
+            <input type="text" id="alat-nama" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
                 <select id="alat-kategori" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="Sound System">Sound System</option>
-                    <option value="Tenda">Tenda</option>
-                    <option value="Lighting">Lighting</option>
-                    <option value="Panggung">Panggung</option>
-                    <option value="Dekorasi">Dekorasi</option>
-                    <option value="Genset">Genset</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Stok</label>
-                <input type="number" id="alat-stok" required min="1" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
+                    <option value="Sound System">Sound System</option><option value="Tenda">Tenda</option><option value="Lighting">Lighting</option><option value="Panggung">Panggung</option><option value="Dekorasi">Dekorasi</option><option value="Genset">Genset</option><option value="Lainnya">Lainnya</option>
+                </select></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Stok</label>
+                <input type="number" id="alat-stok" required min="1" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         </div>
         <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Sewa / Hari (Rp)</label>
-                <input type="number" id="alat-harga" required min="0" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Kondisi</label>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Harga/Hari (Rp)</label>
+                <input type="number" id="alat-harga" required min="0" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Kondisi</label>
                 <select id="alat-kondisi" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="Baik">Baik</option>
-                    <option value="Perlu Service">Perlu Service</option>
-                    <option value="Rusak">Rusak</option>
-                </select>
-            </div>
+                    <option value="Baik">Baik</option><option value="Perlu Service">Perlu Service</option><option value="Rusak">Rusak</option>
+                </select></div>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-            <input type="text" id="alat-keterangan" placeholder="Merk, warna, dll (opsional)" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+            <input type="text" id="alat-keterangan" placeholder="Merk, warna, dll (opsional)" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         <div class="flex justify-end gap-3 pt-2">
             <button type="button" onclick="closeModal('modal-alat')" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Batal</button>
             <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium">Simpan</button>
         </div>
     </form>
-</div>
-</div>
+</div></div>
 
-<!-- ==================== MODAL: TAMBAH/EDIT PELANGGAN ==================== -->
+<!-- MODAL: PELANGGAN -->
 <div id="modal-pelanggan" class="modal-overlay hidden">
 <div class="modal-content bg-white rounded-2xl w-full max-w-lg mx-4">
     <div class="p-6 border-b border-gray-100 flex items-center justify-between">
@@ -318,43 +267,30 @@
     </div>
     <form id="form-pelanggan" onsubmit="saveCustomer(event)" class="p-6 space-y-4">
         <input type="hidden" id="cust-edit-index" value="-1">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-            <input type="text" id="cust-nama" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+            <input type="text" id="cust-nama" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">No. WhatsApp</label>
-                <input type="text" id="cust-phone" required placeholder="081234567890" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" id="cust-email" placeholder="Opsional" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">No. WhatsApp</label>
+                <input type="text" id="cust-phone" required placeholder="081234567890" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="cust-email" placeholder="Opsional" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         </div>
         <div class="grid grid-cols-3 gap-4">
-            <div class="col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                <input type="text" id="cust-alamat" placeholder="Jl. Contoh No. 10" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
-                <input type="text" id="cust-kota" value="Semarang" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
+            <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                <input type="text" id="cust-alamat" placeholder="Jl. Contoh No. 10" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
+                <input type="text" id="cust-kota" value="Semarang" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
-            <input type="text" id="cust-catatan" placeholder="Pelanggan loyal, dll (opsional)" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+            <input type="text" id="cust-catatan" placeholder="Pelanggan loyal, dll (opsional)" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         <div class="flex justify-end gap-3 pt-2">
             <button type="button" onclick="closeModal('modal-pelanggan')" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Batal</button>
             <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium">Simpan</button>
         </div>
     </form>
-</div>
-</div>
+</div></div>
 
-<!-- ==================== MODAL: BUAT PESANAN ==================== -->
+<!-- MODAL: PESANAN -->
 <div id="modal-order" class="modal-overlay hidden">
 <div class="modal-content bg-white rounded-2xl w-full max-w-lg mx-4">
     <div class="p-6 border-b border-gray-100 flex items-center justify-between">
@@ -362,47 +298,28 @@
         <button onclick="closeModal('modal-order')" class="p-1 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-gray-400"></i></button>
     </div>
     <form id="form-order" onsubmit="saveOrder(event)" class="p-6 space-y-4">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Pelanggan</label>
-            <select id="order-customer" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Alat yang Disewa</label>
-            <select id="order-item" required onchange="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Pelanggan</label>
+            <select id="order-customer" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Alat yang Disewa</label>
+            <select id="order-item" required onchange="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select></div>
+        <div class="grid grid-cols-3 gap-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Qty</label>
+                <input type="number" id="order-qty" required min="1" value="1" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Tgl Mulai</label>
+                <input type="date" id="order-start" required onchange="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Tgl Selesai</label>
+                <input type="date" id="order-end" required onchange="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         </div>
         <div class="grid grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Qty</label>
-                <input type="number" id="order-qty" required min="1" value="1" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tgl Mulai</label>
-                <input type="date" id="order-start" required onchange="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tgl Selesai</label>
-                <input type="date" id="order-end" required onchange="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Diskon (Rp)</label>
+                <input type="number" id="order-diskon" min="0" value="0" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Ongkir (Rp)</label>
+                <input type="number" id="order-ongkir" min="0" value="0" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">DP (Rp)</label>
+                <input type="number" id="order-dp" min="0" value="0" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         </div>
-        <div class="grid grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Diskon (Rp)</label>
-                <input type="number" id="order-diskon" min="0" value="0" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ongkir (Rp)</label>
-                <input type="number" id="order-ongkir" min="0" value="0" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">DP (Rp)</label>
-                <input type="number" id="order-dp" min="0" value="0" oninput="calcOrderPreview()" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
-            <input type="text" id="order-notes" placeholder="Antar ke lokasi jam 8, dll" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <!-- Preview Kalkulasi -->
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+            <input type="text" id="order-notes" placeholder="Antar ke lokasi jam 8, dll" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></div>
         <div class="bg-indigo-50 rounded-xl p-4 space-y-1">
             <div class="flex justify-between text-sm"><span class="text-gray-500">Subtotal</span><span id="order-subtotal-preview" class="font-medium">Rp 0</span></div>
             <div class="flex justify-between text-sm font-bold border-t border-indigo-200 pt-1 mt-1"><span class="text-indigo-800">Total</span><span id="order-total-preview" class="text-indigo-700">Rp 0</span></div>
@@ -413,10 +330,9 @@
             <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium">Buat Pesanan</button>
         </div>
     </form>
-</div>
-</div>
+</div></div>
 
-<!-- ==================== MODAL: INVOICE ==================== -->
+<!-- MODAL: INVOICE -->
 <div id="modal-invoice" class="modal-overlay hidden">
 <div class="modal-content bg-white rounded-2xl w-full max-w-2xl mx-4">
     <div class="no-print p-4 border-b border-gray-100 flex items-center justify-between">
@@ -424,130 +340,64 @@
         <button onclick="closeModal('modal-invoice')" class="p-1 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5 text-gray-400"></i></button>
     </div>
     <div id="invoice-body" class="p-8">
-        <!-- Header -->
         <div class="flex items-start justify-between mb-8">
-            <div>
-                <h2 class="text-2xl font-extrabold text-indigo-800">Eztafest<span class="text-orange-500">.</span></h2>
+            <div><h2 class="text-2xl font-extrabold text-indigo-800">Eztafest<span class="text-orange-500">.</span></h2>
                 <p class="text-sm text-gray-500">Sewa Alat Event Profesional</p>
-                <p class="text-xs text-gray-400 mt-1">Semarang | eztafest.com</p>
-            </div>
-            <div class="text-right">
-                <p class="text-2xl font-bold text-gray-300">INVOICE</p>
+                <p class="text-xs text-gray-400 mt-1">Semarang | eztafest.com</p></div>
+            <div class="text-right"><p class="text-2xl font-bold text-gray-300">INVOICE</p>
                 <p id="inv-id" class="text-sm font-semibold text-indigo-700"></p>
-                <p id="inv-date" class="text-xs text-gray-400 mt-1"></p>
-            </div>
+                <p id="inv-date" class="text-xs text-gray-400 mt-1"></p></div>
         </div>
-        <!-- Customer + Periode -->
-        <div class="grid grid-cols-2 gap-6 mb-8">
-            <div class="bg-gray-50 rounded-xl p-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Ditagihkan Kepada</p>
-                <p id="inv-name" class="font-semibold text-gray-800"></p>
-                <p id="inv-phone" class="text-sm text-gray-500"></p>
-                <p id="inv-email" class="text-sm text-gray-500"></p>
-                <p id="inv-address" class="text-sm text-gray-500"></p>
-            </div>
-            <div class="bg-gray-50 rounded-xl p-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Periode Sewa</p>
-                <p id="inv-period" class="font-semibold text-gray-800"></p>
-                <p id="inv-days" class="text-sm text-gray-500"></p>
-                <div class="mt-2" id="inv-status"></div>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            <div class="bg-gray-50 rounded-xl p-4"><p class="text-xs font-semibold text-gray-400 uppercase mb-2">Ditagihkan Kepada</p>
+                <p id="inv-name" class="font-semibold text-gray-800"></p><p id="inv-phone" class="text-sm text-gray-500"></p>
+                <p id="inv-email" class="text-sm text-gray-500"></p><p id="inv-address" class="text-sm text-gray-500"></p></div>
+            <div class="bg-gray-50 rounded-xl p-4"><p class="text-xs font-semibold text-gray-400 uppercase mb-2">Periode Sewa</p>
+                <p id="inv-period" class="font-semibold text-gray-800"></p><p id="inv-days" class="text-sm text-gray-500"></p>
+                <div class="mt-2" id="inv-status"></div></div>
         </div>
-        <!-- Items Table -->
-        <table class="w-full mb-6">
-            <thead><tr class="bg-indigo-800 text-white">
-                <th class="text-left p-3 text-sm font-semibold rounded-tl-lg">Deskripsi</th>
-                <th class="text-center p-3 text-sm font-semibold">Qty</th>
-                <th class="text-center p-3 text-sm font-semibold">Hari</th>
-                <th class="text-right p-3 text-sm font-semibold">Harga/Hari</th>
-                <th class="text-right p-3 text-sm font-semibold rounded-tr-lg">Subtotal</th>
-            </tr></thead>
-            <tbody id="inv-items-tbody"></tbody>
-        </table>
-        <!-- Totals -->
-        <div class="flex justify-end">
-            <div class="w-72">
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">Subtotal</span>
-                    <span id="inv-subtotal" class="text-sm font-medium"></span>
-                </div>
-                <div id="inv-discount-row" class="flex justify-between py-2 border-b border-gray-100" style="display:none;">
-                    <span class="text-sm text-gray-500">Diskon</span>
-                    <span id="inv-discount" class="text-sm font-medium text-green-600"></span>
-                </div>
-                <div id="inv-shipping-row" class="flex justify-between py-2 border-b border-gray-100" style="display:none;">
-                    <span class="text-sm text-gray-500">Biaya Antar</span>
-                    <span id="inv-shipping" class="text-sm font-medium"></span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-200">
-                    <span class="font-bold text-gray-800">Total</span>
-                    <span id="inv-total" class="text-lg font-bold text-indigo-700"></span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <span class="text-sm text-gray-500">DP Dibayar</span>
-                    <span id="inv-dp" class="text-sm font-medium text-green-600"></span>
-                </div>
-                <div class="flex justify-between py-3 bg-red-50 rounded-lg px-3 mt-1">
-                    <span class="font-bold text-red-700">Sisa Bayar</span>
-                    <span id="inv-remaining" class="text-lg font-bold text-red-700"></span>
-                </div>
-            </div>
-        </div>
-        <!-- Notes -->
-        <div class="mt-6 bg-yellow-50 rounded-xl p-4">
-            <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Catatan</p>
-            <p id="inv-notes" class="text-sm text-gray-700"></p>
-        </div>
-        <!-- Bank Info -->
-        <div class="mt-6 bg-blue-50 rounded-xl p-4">
-            <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Pembayaran via Transfer</p>
-            <p class="text-sm font-semibold text-gray-800">Bank BCA — 1234567890</p>
-            <p class="text-sm text-gray-600">a/n Eztafest</p>
-        </div>
-        <!-- Syarat & Ketentuan -->
-        <div class="mt-6 border border-gray-200 rounded-xl p-4">
-            <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Syarat & Ketentuan</p>
+        <div class="overflow-x-auto"><table class="w-full mb-6"><thead><tr class="bg-indigo-800 text-white">
+            <th class="text-left p-3 text-sm font-semibold rounded-tl-lg">Deskripsi</th>
+            <th class="text-center p-3 text-sm font-semibold">Qty</th>
+            <th class="text-center p-3 text-sm font-semibold">Hari</th>
+            <th class="text-right p-3 text-sm font-semibold">Harga/Hari</th>
+            <th class="text-right p-3 text-sm font-semibold rounded-tr-lg">Subtotal</th>
+        </tr></thead><tbody id="inv-items-tbody"></tbody></table></div>
+        <div class="flex justify-end"><div class="w-72">
+            <div class="flex justify-between py-2 border-b border-gray-100"><span class="text-sm text-gray-500">Subtotal</span><span id="inv-subtotal" class="text-sm font-medium"></span></div>
+            <div id="inv-discount-row" class="flex justify-between py-2 border-b border-gray-100" style="display:none"><span class="text-sm text-gray-500">Diskon</span><span id="inv-discount" class="text-sm font-medium text-green-600"></span></div>
+            <div id="inv-shipping-row" class="flex justify-between py-2 border-b border-gray-100" style="display:none"><span class="text-sm text-gray-500">Biaya Antar</span><span id="inv-shipping" class="text-sm font-medium"></span></div>
+            <div class="flex justify-between py-2 border-b border-gray-200"><span class="font-bold text-gray-800">Total</span><span id="inv-total" class="text-lg font-bold text-indigo-700"></span></div>
+            <div class="flex justify-between py-2 border-b border-gray-100"><span class="text-sm text-gray-500">DP Dibayar</span><span id="inv-dp" class="text-sm font-medium text-green-600"></span></div>
+            <div class="flex justify-between py-3 bg-red-50 rounded-lg px-3 mt-1"><span class="font-bold text-red-700">Sisa Bayar</span><span id="inv-remaining" class="text-lg font-bold text-red-700"></span></div>
+        </div></div>
+        <div class="mt-6 bg-yellow-50 rounded-xl p-4"><p class="text-xs font-semibold text-gray-400 uppercase mb-1">Catatan</p><p id="inv-notes" class="text-sm text-gray-700"></p></div>
+        <div class="mt-6 bg-blue-50 rounded-xl p-4"><p class="text-xs font-semibold text-gray-400 uppercase mb-2">Pembayaran via Transfer</p>
+            <p class="text-sm font-semibold text-gray-800">Bank BCA — 1234567890</p><p class="text-sm text-gray-600">a/n Eztafest</p></div>
+        <div class="mt-6 border border-gray-200 rounded-xl p-4"><p class="text-xs font-semibold text-gray-400 uppercase mb-2">Syarat & Ketentuan</p>
             <ol class="text-xs text-gray-500 space-y-1 list-decimal list-inside">
                 <li>Alat harus dikembalikan sesuai jadwal yang telah disepakati.</li>
                 <li>Kerusakan akibat kelalaian penyewa menjadi tanggung jawab penyewa.</li>
                 <li>Pembatalan H-1 dikenakan biaya 50% dari total.</li>
                 <li>DP tidak dapat dikembalikan jika pembatalan dari pihak penyewa.</li>
-            </ol>
-        </div>
-        <!-- Tanda Tangan -->
+            </ol></div>
         <div class="mt-8 grid grid-cols-2 gap-8">
-            <div class="text-center">
-                <p class="text-xs text-gray-400 mb-16">Penyewa,</p>
-                <div class="border-t border-gray-300 pt-2">
-                    <p id="inv-sig-name" class="text-sm font-semibold text-gray-700"></p>
-                </div>
-            </div>
-            <div class="text-center">
-                <p class="text-xs text-gray-400 mb-16">Eztafest,</p>
-                <div class="border-t border-gray-300 pt-2">
-                    <p class="text-sm font-semibold text-gray-700">Admin</p>
-                </div>
-            </div>
+            <div class="text-center"><p class="text-xs text-gray-400 mb-16">Penyewa,</p>
+                <div class="border-t border-gray-300 pt-2"><p id="inv-sig-name" class="text-sm font-semibold text-gray-700"></p></div></div>
+            <div class="text-center"><p class="text-xs text-gray-400 mb-16">Eztafest,</p>
+                <div class="border-t border-gray-300 pt-2"><p class="text-sm font-semibold text-gray-700">Admin</p></div></div>
         </div>
-        <!-- Footer -->
         <div class="mt-8 pt-4 border-t border-gray-200">
             <p class="text-xs text-gray-400 text-center">Terima kasih atas kepercayaan Anda.</p>
-            <p class="text-xs text-gray-400 text-center mt-1">Eztafest — Sewa Alat Event Profesional — Semarang</p>
-        </div>
+            <p class="text-xs text-gray-400 text-center mt-1">Eztafest — Sewa Alat Event Profesional — Semarang</p></div>
     </div>
-    <!-- Action Buttons -->
     <div class="no-print p-4 border-t border-gray-100 flex justify-center gap-3">
-        <button onclick="sendInvoiceWA()" class="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-medium transition">
-            <i data-lucide="message-circle" class="w-4 h-4"></i> Kirim ke WA</button>
-        <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition">
-            <i data-lucide="printer" class="w-4 h-4"></i> Cetak / PDF</button>
+        <button onclick="sendInvoiceWA()" class="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-medium transition"><i data-lucide="message-circle" class="w-4 h-4"></i> Kirim ke WA</button>
+        <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition"><i data-lucide="printer" class="w-4 h-4"></i> Cetak / PDF</button>
     </div>
-</div>
-</div>
+</div></div>
 
-<!-- ==================== SCRIPTS ==================== -->
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
-
