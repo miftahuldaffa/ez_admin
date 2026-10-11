@@ -323,3 +323,37 @@ tbody tr:hover { background: #F5F3FF; }
     }
 }
 
+
+/* ===== SIDEBAR TOGGLE / COLLAPSIBLE ===== */
+.sidebar {
+    transition: width 0.3s ease, min-width 0.3s ease;
+    min-width: 256px; /* w-64 = 16rem = 256px */
+    overflow: hidden;
+}
+.sidebar.collapsed {
+    min-width: 0;
+    width: 0 !important;
+    padding: 0;
+    overflow: hidden;
+}
+.sidebar.collapsed * {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease;
+}
+.toggle-btn {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.toggle-btn:hover {
+    background: #F5F3FF;
+    border-color: #6366F1;
+}
+
