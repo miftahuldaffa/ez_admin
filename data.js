@@ -1,12 +1,10 @@
 
 // ============================================================
-// DATA.JS — Eztafest Admin Dashboard
-// Data management + Google Sheets sync (3 spreadsheet terpisah)
+// DATA.JS — Eztafest Admin Dashboard (FINAL)
 // ============================================================
 
 var SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyolO6DSNsWMDIpPUsBqV3MObrfs_n3BA-0c-hjZCmBTMvsJpjplGdiOWpCbP83cF-Z/exec';
 
-// ===== DATA ARRAYS (diisi dari Google Sheets saat load) =====
 var inventoryData = [];
 var customersData = [];
 var ordersData = [];
@@ -59,20 +57,16 @@ function calcOrderTotal(price, qty, days, discount, shipping) {
 
 // ===== HITUNG STOK TERSEDIA =====
 function recalcAvailableStock() {
-    // Status aktif = stok sedang terpakai
     var activeStatuses = ['Menunggu Pembayaran', 'Sudah Bayar DP', 'Sedang Disewa', 'Diantar'];
-
     for (var i = 0; i < inventoryData.length; i++) {
         var item = inventoryData[i];
         var used = 0;
-
         for (var j = 0; j < ordersData.length; j++) {
             var o = ordersData[j];
             if (o.itemId === item.id && activeStatuses.indexOf(o.status) !== -1) {
                 used += Number(o.qty) || 0;
             }
         }
-
         item.available = Math.max(0, (Number(item.stock) || 0) - used);
     }
 }
@@ -99,6 +93,47 @@ function getTodayStr() {
 }
 
 // =============================================================
+// NORMALIZE TANGGAL (handle semua format dari Google Sheets)
+// "Thu Oct 15 2026..." → "2026-10-15"
+// "2026-10-15T00:00:00" → "2026-10-15"
+// "10/15/2026" → "2026-10-15"
+// 46311 (serial Excel) → "2026-10-15"
+// =============================================================
+function normalizeDateStr(val) {
+    if (!val || val === '' || val === '-') return '';
+    var s = String(val).trim();
+
+    // Sudah format YYYY-MM-DD → langsung return
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+    // Format YYYY-MM-DDTHH:mm:ss (ISO) → ambil 10 karakter
+    if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.substring(0, 10);
+
+    // Format MM/DD/YYYY atau DD/MM/YYYY
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
+        var d = new Date(s);
+        if (!isNaN(d.getTime())) {
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        }
+    }
+
+    // Angka serial Excel (misal 46311)
+    if (/^\d{4,5}$/.test(s)) {
+        var excelEpoch = new Date(1899, 11, 30);
+        var d = new Date(excelEpoch.getTime() + Number(s) * 86400000);
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+
+    // Fallback: "Thu Oct 15 2026..." atau format lainnya
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) {
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+
+    return s;
+}
+
+// =============================================================
 // GOOGLE SHEETS: LOAD DATA
 // =============================================================
 async function loadFromSheet() {
@@ -114,7 +149,6 @@ async function loadFromSheet() {
 
         if (data.alat && data.alat.length) {
             inventoryData = data.alat;
-            // Pastikan angka
             for (var i = 0; i < inventoryData.length; i++) {
                 inventoryData[i].stock = Number(inventoryData[i].stock) || 0;
                 inventoryData[i].available = Number(inventoryData[i].available) || 0;
@@ -128,7 +162,6 @@ async function loadFromSheet() {
 
         if (data.transaksi && data.transaksi.length) {
             ordersData = data.transaksi;
-            // Pastikan angka
             for (var i = 0; i < ordersData.length; i++) {
                 var o = ordersData[i];
                 o.qty = Number(o.qty) || 0;
@@ -138,14 +171,13 @@ async function loadFromSheet() {
                 o.total = Number(o.total) || 0;
                 o.dp = Number(o.dp) || 0;
                 o.remaining = Number(o.remaining) || 0;
-                // Normalize tanggal ke YYYY-MM-DD (fix kalender)
-                if (o.startDate) o.startDate = String(o.startDate).substring(0, 10);
-                if (o.endDate) o.endDate = String(o.endDate).substring(0, 10);
-                if (o.createdDate) o.createdDate = String(o.createdDate).substring(0, 10);
+                // Fix tanggal — convert semua format ke YYYY-MM-DD
+                o.startDate = normalizeDateStr(o.startDate);
+                o.endDate = normalizeDateStr(o.endDate);
+                o.createdDate = normalizeDateStr(o.createdDate);
             }
         }
 
-        // Hitung ulang stok tersedia berdasarkan transaksi aktif
         recalcAvailableStock();
         saveToLocalStorage();
         showLoading(false);
@@ -161,7 +193,7 @@ async function loadFromSheet() {
 }
 
 // =============================================================
-// GOOGLE SHEETS: SYNC DATA (Add/Update/Delete)
+// GOOGLE SHEETS: SYNC (Add/Update/Delete)
 // =============================================================
 async function syncToSheet(action, target, rowData) {
     if (!SHEET_API_URL) {
@@ -188,7 +220,7 @@ async function syncToSheet(action, target, rowData) {
     }
 }
 
-// ===== SYNC STOK TERSEDIA KE SHEET ALAT =====
+// ===== SYNC STOK TERSEDIA =====
 async function syncAvailableStock() {
     if (!SHEET_API_URL) return;
 
@@ -242,58 +274,39 @@ function loadFromLocalStorage() {
 // ===== LOADING INDICATOR =====
 function showLoading(show) {
     var el = document.getElementById('loading-overlay');
-    if (el) {
-        el.classList.toggle('hidden', !show);
-    }
+    if (el) el.classList.toggle('hidden', !show);
 }
 
 // =============================================================
-// STATISTIK UNTUK DASHBOARD & LAPORAN
+// STATISTIK
 // =============================================================
 function getStats() {
     var now = new Date();
     var monthStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-
-    var totalRevenue = 0;       // Total semua (non-batal)
-    var monthRevenue = 0;       // Revenue bulan ini
-    var activeOrders = 0;       // Pesanan aktif
-    var completedOrders = 0;    // Pesanan selesai
-    var availableItems = 0;     // Total alat tersedia
+    var totalRevenue = 0, monthRevenue = 0, activeOrders = 0, completedOrders = 0, availableItems = 0;
     var activeStatuses = ['Menunggu Pembayaran', 'Sudah Bayar DP', 'Sedang Disewa', 'Diantar'];
 
     for (var i = 0; i < ordersData.length; i++) {
         var o = ordersData[i];
-        if (o.status !== 'Dibatalkan') {
-            totalRevenue += o.total;
-        }
-        if (o.status === 'Selesai') {
-            completedOrders++;
-        }
-        if (activeStatuses.indexOf(o.status) !== -1) {
-            activeOrders++;
-        }
-        // Revenue bulan ini (berdasarkan CreatedDate)
+        if (o.status !== 'Dibatalkan') totalRevenue += o.total;
+        if (o.status === 'Selesai') completedOrders++;
+        if (activeStatuses.indexOf(o.status) !== -1) activeOrders++;
         if (o.createdDate && String(o.createdDate).indexOf(monthStr) === 0 && o.status !== 'Dibatalkan') {
             monthRevenue += o.total;
         }
     }
-
     for (var i = 0; i < inventoryData.length; i++) {
         availableItems += inventoryData[i].available;
     }
 
     return {
-        totalRevenue: totalRevenue,
-        monthRevenue: monthRevenue,
-        activeOrders: activeOrders,
-        completedOrders: completedOrders,
-        availableItems: availableItems,
-        totalCustomers: customersData.length,
+        totalRevenue: totalRevenue, monthRevenue: monthRevenue,
+        activeOrders: activeOrders, completedOrders: completedOrders,
+        availableItems: availableItems, totalCustomers: customersData.length,
         totalOrders: ordersData.length
     };
 }
 
-// ===== ALAT PALING LARIS =====
 function getTopItems(limit) {
     var itemCount = {};
     for (var i = 0; i < ordersData.length; i++) {
@@ -313,7 +326,6 @@ function getTopItems(limit) {
     return arr.slice(0, limit || 5);
 }
 
-// ===== PELANGGAN PALING AKTIF =====
 function getTopCustomers(limit) {
     var custCount = {};
     for (var i = 0; i < ordersData.length; i++) {
@@ -333,31 +345,22 @@ function getTopCustomers(limit) {
     return arr.slice(0, limit || 5);
 }
 
-// ===== REVENUE PER BULAN (untuk chart) =====
 function getMonthlyRevenue(year) {
     var months = new Array(12).fill(0);
     for (var i = 0; i < ordersData.length; i++) {
         var o = ordersData[i];
         if (o.status !== 'Dibatalkan' && o.createdDate) {
             var d = new Date(o.createdDate);
-            if (d.getFullYear() === year) {
-                months[d.getMonth()] += Number(o.total) || 0;
-            }
+            if (d.getFullYear() === year) months[d.getMonth()] += Number(o.total) || 0;
         }
     }
     return months;
 }
 
-// ===== STATUS COUNT (untuk chart) =====
 function getStatusCount() {
     var statuses = {
-        'Menunggu Pembayaran': 0,
-        'Sudah Bayar DP': 0,
-        'Sedang Disewa': 0,
-        'Diantar': 0,
-        'Dikembalikan': 0,
-        'Selesai': 0,
-        'Dibatalkan': 0
+        'Menunggu Pembayaran':0, 'Sudah Bayar DP':0, 'Sedang Disewa':0,
+        'Diantar':0, 'Dikembalikan':0, 'Selesai':0, 'Dibatalkan':0
     };
     for (var i = 0; i < ordersData.length; i++) {
         var s = ordersData[i].status;
@@ -365,4 +368,3 @@ function getStatusCount() {
     }
     return statuses;
 }
-
