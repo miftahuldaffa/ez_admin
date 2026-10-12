@@ -1,8 +1,8 @@
 
 /* ============================================================
    STYLE.CSS — Eztafest Admin Dashboard
-   Complete: Sidebar Toggle, Mobile Responsive, 7 Status,
-   Calendar, Modal, Toast, Print
+   Complete styles: Sidebar, Cards, Table, Badge (7 status),
+   Calendar (7 warna), Modal, Toast, Print, Responsive
    ============================================================ */
 
 :root {
@@ -17,50 +17,15 @@
     --bg-main: #F8FAFC;
     --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     --card-shadow-hover: 0 10px 25px rgba(67,56,202,0.1);
-    --sidebar-width: 256px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
 body { background: var(--bg-main); }
 
 /* ===== SIDEBAR ===== */
 .sidebar {
     background: linear-gradient(180deg, #1E1B4B 0%, #312E81 50%, #3730A3 100%);
-    width: var(--sidebar-width);
-    min-width: var(--sidebar-width);
-    transition: width 0.3s ease, min-width 0.3s ease, transform 0.3s ease;
-    overflow: hidden;
-    z-index: 40;
 }
-.sidebar.collapsed {
-    width: 0 !important;
-    min-width: 0 !important;
-    overflow: hidden;
-}
-.sidebar.collapsed .sidebar-inner {
-    opacity: 0;
-    pointer-events: none;
-}
-.sidebar-inner {
-    transition: opacity 0.2s ease;
-    opacity: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: var(--sidebar-width);
-}
-
-/* Sidebar Overlay (mobile) */
-.sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 39;
-}
-.sidebar-overlay.active { display: block; }
-
-/* Tab Buttons */
 .tab-btn {
     color: rgba(199,210,254,0.8);
     border-left: 3px solid transparent;
@@ -75,23 +40,6 @@ body { background: var(--bg-main); }
     border-left-color: #F97316;
     color: white;
     font-weight: 600;
-}
-
-/* Toggle Button */
-.toggle-btn {
-    background: white;
-    border: 1px solid #E5E7EB;
-    border-radius: 10px;
-    padding: 6px 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.toggle-btn:hover {
-    background: #F5F3FF;
-    border-color: var(--primary-light);
 }
 
 /* ===== STAT CARDS ===== */
@@ -119,13 +67,34 @@ tbody tr:hover { background: #F5F3FF; }
     white-space: nowrap;
     letter-spacing: 0.01em;
 }
-.badge-waiting  { background: #FEF3C7; color: #92400E; }
-.badge-dp       { background: #FFEDD5; color: #9A3412; }
-.badge-active   { background: #DBEAFE; color: #1E40AF; }
-.badge-delivery { background: #EDE9FE; color: #5B21B6; }
-.badge-returned { background: #CFFAFE; color: #155E75; }
-.badge-done     { background: #D1FAE5; color: #065F46; }
-.badge-cancelled{ background: #FEE2E2; color: #991B1B; }
+.badge-waiting {
+    background: #FEF3C7;
+    color: #92400E;
+}
+.badge-dp {
+    background: #FFEDD5;
+    color: #9A3412;
+}
+.badge-active {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+.badge-delivery {
+    background: #EDE9FE;
+    color: #5B21B6;
+}
+.badge-returned {
+    background: #CFFAFE;
+    color: #155E75;
+}
+.badge-done {
+    background: #D1FAE5;
+    color: #065F46;
+}
+.badge-cancelled {
+    background: #FEE2E2;
+    color: #991B1B;
+}
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -200,6 +169,8 @@ tbody tr:hover { background: #F5F3FF; }
     justify-content: center;
     border-radius: 50%;
 }
+
+/* Calendar Events — 7 warna status */
 .cal-event {
     font-size: 0.6rem;
     padding: 2px 5px;
@@ -213,12 +184,31 @@ tbody tr:hover { background: #F5F3FF; }
     font-weight: 500;
 }
 .cal-event:hover { transform: scale(1.05); }
-.cal-event-waiting  { background: #FDE68A; color: #92400E; }
-.cal-event-dp       { background: #FDBA74; color: #9A3412; }
-.cal-event-active   { background: #93C5FD; color: #1E3A8A; }
-.cal-event-delivery { background: #C4B5FD; color: #4C1D95; }
-.cal-event-returned { background: #67E8F9; color: #155E75; }
-.cal-event-done     { background: #6EE7B7; color: #064E3B; }
+
+.cal-event-waiting {
+    background: #FDE68A;
+    color: #92400E;
+}
+.cal-event-dp {
+    background: #FDBA74;
+    color: #9A3412;
+}
+.cal-event-active {
+    background: #93C5FD;
+    color: #1E3A8A;
+}
+.cal-event-delivery {
+    background: #C4B5FD;
+    color: #4C1D95;
+}
+.cal-event-returned {
+    background: #67E8F9;
+    color: #155E75;
+}
+.cal-event-done {
+    background: #6EE7B7;
+    color: #064E3B;
+}
 
 /* ===== ACTION BUTTONS ===== */
 .action-btn {
@@ -234,14 +224,14 @@ tbody tr:hover { background: #F5F3FF; }
     border: none;
     background: none;
 }
-.action-btn-edit    { color: #4F46E5; }
+.action-btn-edit { color: #4F46E5; }
 .action-btn-edit:hover { background: #EEF2FF; }
-.action-btn-delete  { color: #DC2626; }
+.action-btn-delete { color: #DC2626; }
 .action-btn-delete:hover { background: #FEF2F2; }
 .action-btn-invoice { color: #059669; }
 .action-btn-invoice:hover { background: #ECFDF5; }
 
-/* ===== TOAST ===== */
+/* ===== TOAST NOTIFICATION ===== */
 .toast-item {
     display: flex;
     align-items: center;
@@ -256,15 +246,22 @@ tbody tr:hover { background: #F5F3FF; }
     animation: toastSlideIn 0.3s ease-out;
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
-.toast-fade { opacity: 0; transform: translateX(30px); }
+.toast-fade {
+    opacity: 0;
+    transform: translateX(30px);
+}
 @keyframes toastSlideIn {
     from { opacity: 0; transform: translateX(30px); }
     to   { opacity: 1; transform: translateX(0); }
 }
 
-/* ===== LOADING ===== */
-.animate-spin { animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* ===== LOADING SPINNER ===== */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
 
 /* ===== EMPTY STATE ===== */
 .empty-state {
@@ -281,15 +278,9 @@ tbody tr:hover { background: #F5F3FF; }
 
 /* ===== PRINT ===== */
 @media print {
-    body {
-        background: white !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    .no-print, .sidebar, header, #toast-container,
-    #loading-overlay, .sidebar-overlay {
-        display: none !important;
-    }
+    body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none !important; }
+    .sidebar, header, #toast-container, #loading-overlay { display: none !important; }
     main { margin: 0; padding: 0; overflow: visible; }
     .modal-overlay {
         position: static;
@@ -307,6 +298,9 @@ tbody tr:hover { background: #F5F3FF; }
     }
     #invoice-body { padding: 20px; }
     .badge { border: 1px solid #ccc; }
+    .bg-indigo-800 { background: #312E81 !important; }
+    .text-indigo-700 { color: #4338CA !important; }
+    .bg-red-50 { background: #FEF2F2 !important; }
 }
 
 /* =============================================================
@@ -326,16 +320,12 @@ tbody tr:hover { background: #F5F3FF; }
     .sidebar.mobile-open {
         transform: translateX(0);
     }
-    .sidebar.collapsed {
-        width: 280px !important;
-        min-width: 280px !important;
-    }
     .cal-day { min-height: 50px; padding: 3px; }
     .cal-day .day-num { font-size: 0.7rem; }
-    .cal-event { font-size: 0.5rem; padding: 1px 3px; }
+    .cal-event { font-size: 0.45rem; padding: 1px 3px; }
     .stat-card { padding: 1rem; }
-    header { padding: 0.75rem 1rem !important; }
-    .p-8 { padding: 1rem !important; }
+    header { padding: 1rem; }
+    .p-8 { padding: 1rem; }
     .modal-content { margin: 0.5rem; }
 }
 
@@ -343,9 +333,41 @@ tbody tr:hover { background: #F5F3FF; }
    RESPONSIVE — MOBILE (max 480px)
    ============================================================= */
 @media (max-width: 480px) {
-    .cal-event { display: none; }
-    .cal-day { min-height: 36px; padding: 2px; }
-    .badge { font-size: 0.6rem; padding: 2px 6px; }
-    .stat-card p.text-2xl { font-size: 1.25rem; }
+    .flex.items-center.justify-between.mb-6 {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    /* Event tampil sebagai dot bulat berwarna (bukan display:none) */
+    .cal-event {
+        display: block !important;
+        font-size: 0 !important;
+        width: 8px !important;
+        height: 8px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        margin: 1px auto !important;
+        min-height: 8px !important;
+    }
+    .cal-day {
+        min-height: 40px;
+        padding: 2px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .cal-day .day-num {
+        font-size: 0.65rem;
+        margin-bottom: 2px;
+    }
+    .cal-day.today .day-num {
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+    }
+    .cal-day.cal-empty {
+        min-height: auto;
+    }
 }
 
