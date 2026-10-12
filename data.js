@@ -138,6 +138,10 @@ async function loadFromSheet() {
                 o.total = Number(o.total) || 0;
                 o.dp = Number(o.dp) || 0;
                 o.remaining = Number(o.remaining) || 0;
+                // Normalize tanggal ke YYYY-MM-DD (fix kalender)
+                if (o.startDate) o.startDate = String(o.startDate).substring(0, 10);
+                if (o.endDate) o.endDate = String(o.endDate).substring(0, 10);
+                if (o.createdDate) o.createdDate = String(o.createdDate).substring(0, 10);
             }
         }
 
@@ -361,3 +365,4 @@ function getStatusCount() {
     }
     return statuses;
 }
+

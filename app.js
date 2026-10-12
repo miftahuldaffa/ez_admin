@@ -349,37 +349,71 @@ function saveOrder(e) {
 // =============================================================
 // KALENDER
 // =============================================================
+
 function renderCalendar() {
     var mn = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    document.getElementById('calendar-month-title').innerText = mn[currentMonth]+' '+currentYear;
+    document.getElementById('calendar-month-title').innerText = mn[currentMonth] + ' ' + currentYear;
+
     var grid = document.getElementById('calendar-grid');
     var dn = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
     var html = '';
-    for (var d = 0; d < dn.length; d++) html += '<div class="cal-header">'+dn[d]+'</div>';
-    var fd = new Date(currentYear,currentMonth,1).getDay();
-    var td = new Date(currentYear,currentMonth+1,0).getDate();
+    for (var d = 0; d < dn.length; d++) html += '<div class="cal-header">' + dn[d] + '</div>';
+
+    var fd = new Date(currentYear, currentMonth, 1).getDay();
+    var td = new Date(currentYear, currentMonth + 1, 0).getDate();
     var todayStr = getTodayStr();
+
     for (var i = 0; i < fd; i++) html += '<div class="cal-day cal-empty"></div>';
+
     for (var day = 1; day <= td; day++) {
-        var ds = currentYear+'-'+String(currentMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+        var ds = currentYear + '-' + String(currentMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
         var isT = ds === todayStr;
+
+        // Cari semua order yang aktif di tanggal ini
         var bk = [];
         for (var b = 0; b < ordersData.length; b++) {
             var o = ordersData[b];
-            if (ds >= o.startDate && ds <= o.endDate && o.status !== 'Dibatalkan') bk.push(o);
+            if (o.status === 'Dibatalkan') continue;
+
+            // Normalize tanggal: ambil 10 karakter pertama (YYYY-MM-DD)
+            var oStart = String(o.startDate).substring(0, 10);
+            var oEnd = String(o.endDate).substring(0, 10);
+
+            if (ds >= oStart && ds <= oEnd) {
+                bk.push(o);
+            }
         }
+
         var ev = '';
         for (var b = 0; b < bk.length; b++) {
-            var bkg = bk[b], it = getItemById(bkg.itemId);
-            var ecMap = {'Menunggu Pembayaran':'cal-event-waiting','Sudah Bayar DP':'cal-event-dp','Sedang Disewa':'cal-event-active','Diantar':'cal-event-delivery','Dikembalikan':'cal-event-returned','Selesai':'cal-event-done'};
-            var ec = ecMap[bkg.status]||'cal-event-active';
+            var bkg = bk[b];
+            var it = getItemById(bkg.itemId);
+            var cust = getCustomerById(bkg.customerId);
+
+            var ecMap = {
+                'Menunggu Pembayaran': 'cal-event-waiting',
+                'Sudah Bayar DP':     'cal-event-dp',
+                'Sedang Disewa':      'cal-event-active',
+                'Diantar':            'cal-event-delivery',
+                'Dikembalikan':       'cal-event-returned',
+                'Selesai':            'cal-event-done'
+            };
+            var ec = ecMap[bkg.status] || 'cal-event-active';
             var oi = ordersData.indexOf(bkg);
-            ev += '<div onclick="openInvoice('+oi+')" class="cal-event '+ec+'" title="'+it.name+' — '+getCustomerById(bkg.customerId).name+'">'+it.name.substring(0,10)+'</div>';
+            var label = it.name.length > 12 ? it.name.substring(0, 12) + '..' : it.name;
+
+            ev += '<div onclick="openInvoice(' + oi + ')" class="cal-event ' + ec + '" title="' + it.name + ' x' + bkg.qty + ' — ' + cust.name + ' (' + bkg.status + ')">' + label + '</div>';
         }
-        html += '<div class="cal-day '+(isT?'today':'')+'"><div class="day-num">'+day+'</div>'+ev+'</div>';
+
+        html += '<div class="cal-day ' + (isT ? 'today' : '') + '">';
+        html += '<div class="day-num">' + day + '</div>';
+        html += ev;
+        html += '</div>';
     }
     grid.innerHTML = html;
 }
+
+
 function changeMonth(delta) {
     currentMonth += delta;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
