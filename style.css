@@ -1,8 +1,6 @@
 
 /* ============================================================
-   STYLE.CSS — Eztafest Admin Dashboard
-   Complete styles: Sidebar, Cards, Table, Badge (7 status),
-   Calendar (7 warna), Modal, Toast, Print, Responsive
+   STYLE.CSS — Eztafest Admin Dashboard (FINAL)
    ============================================================ */
 
 :root {
@@ -67,34 +65,13 @@ tbody tr:hover { background: #F5F3FF; }
     white-space: nowrap;
     letter-spacing: 0.01em;
 }
-.badge-waiting {
-    background: #FEF3C7;
-    color: #92400E;
-}
-.badge-dp {
-    background: #FFEDD5;
-    color: #9A3412;
-}
-.badge-active {
-    background: #DBEAFE;
-    color: #1E40AF;
-}
-.badge-delivery {
-    background: #EDE9FE;
-    color: #5B21B6;
-}
-.badge-returned {
-    background: #CFFAFE;
-    color: #155E75;
-}
-.badge-done {
-    background: #D1FAE5;
-    color: #065F46;
-}
-.badge-cancelled {
-    background: #FEE2E2;
-    color: #991B1B;
-}
+.badge-waiting  { background: #FEF3C7; color: #92400E; }
+.badge-dp       { background: #FFEDD5; color: #9A3412; }
+.badge-active   { background: #DBEAFE; color: #1E40AF; }
+.badge-delivery { background: #EDE9FE; color: #5B21B6; }
+.badge-returned { background: #CFFAFE; color: #155E75; }
+.badge-done     { background: #D1FAE5; color: #065F46; }
+.badge-cancelled{ background: #FEE2E2; color: #991B1B; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -134,7 +111,7 @@ tbody tr:hover { background: #F5F3FF; }
     border-radius: 10px;
     padding: 6px;
     transition: all 0.15s ease;
-    cursor: default;
+    cursor: pointer;
 }
 .cal-day:hover {
     border-color: var(--primary-light);
@@ -149,6 +126,7 @@ tbody tr:hover { background: #F5F3FF; }
     border: none;
     background: transparent;
     min-height: auto;
+    cursor: default;
 }
 .cal-day.cal-empty:hover {
     background: transparent;
@@ -170,7 +148,7 @@ tbody tr:hover { background: #F5F3FF; }
     border-radius: 50%;
 }
 
-/* Calendar Events — 7 warna status */
+/* Calendar Events */
 .cal-event {
     font-size: 0.6rem;
     padding: 2px 5px;
@@ -184,30 +162,91 @@ tbody tr:hover { background: #F5F3FF; }
     font-weight: 500;
 }
 .cal-event:hover { transform: scale(1.05); }
+.cal-event-waiting  { background: #FDE68A; color: #92400E; }
+.cal-event-dp       { background: #FDBA74; color: #9A3412; }
+.cal-event-active   { background: #93C5FD; color: #1E3A8A; }
+.cal-event-delivery { background: #C4B5FD; color: #4C1D95; }
+.cal-event-returned { background: #67E8F9; color: #155E75; }
+.cal-event-done     { background: #6EE7B7; color: #064E3B; }
 
-.cal-event-waiting {
-    background: #FDE68A;
-    color: #92400E;
+/* ===== FILTER BUTTONS ===== */
+.cal-filter-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid #E5E7EB;
+    background: white;
+    color: #6B7280;
+    transition: all 0.2s ease;
 }
-.cal-event-dp {
-    background: #FDBA74;
-    color: #9A3412;
+.cal-filter-btn:hover {
+    border-color: #C7D2FE;
+    background: #F5F3FF;
 }
-.cal-event-active {
-    background: #93C5FD;
-    color: #1E3A8A;
+.cal-filter-btn.cal-filter-active {
+    background: #4338CA;
+    color: white;
+    border-color: #4338CA;
 }
-.cal-event-delivery {
-    background: #C4B5FD;
-    color: #4C1D95;
+.cal-filter-waiting.cal-filter-active       { background: #F59E0B; border-color: #F59E0B; }
+.cal-filter-dp.cal-filter-active            { background: #F97316; border-color: #F97316; }
+.cal-filter-active-status.cal-filter-active { background: #3B82F6; border-color: #3B82F6; }
+.cal-filter-delivery.cal-filter-active      { background: #8B5CF6; border-color: #8B5CF6; }
+.cal-filter-returned.cal-filter-active      { background: #06B6D4; border-color: #06B6D4; }
+.cal-filter-done.cal-filter-active          { background: #10B981; border-color: #10B981; }
+
+/* ===== SELECTED DATE ===== */
+.cal-day.cal-selected {
+    border-color: #F97316 !important;
+    background: #FFF7ED !important;
+    box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
 }
-.cal-event-returned {
-    background: #67E8F9;
-    color: #155E75;
+
+/* ===== HAS EVENT ===== */
+.cal-day.cal-has-event {
+    border-color: #C7D2FE;
 }
-.cal-event-done {
-    background: #6EE7B7;
-    color: #064E3B;
+
+/* ===== DETAIL CARDS ===== */
+.cal-detail-card {
+    background: #F8FAFC;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.cal-detail-card:hover {
+    border-color: #C7D2FE;
+    background: #F5F3FF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(67,56,202,0.08);
+}
+.cal-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.cal-detail-id {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4338CA;
+}
+.cal-detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.cal-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #374151;
 }
 
 /* ===== ACTION BUTTONS ===== */
@@ -224,14 +263,14 @@ tbody tr:hover { background: #F5F3FF; }
     border: none;
     background: none;
 }
-.action-btn-edit { color: #4F46E5; }
-.action-btn-edit:hover { background: #EEF2FF; }
-.action-btn-delete { color: #DC2626; }
-.action-btn-delete:hover { background: #FEF2F2; }
+.action-btn-edit    { color: #4F46E5; }
+.action-btn-edit:hover    { background: #EEF2FF; }
+.action-btn-delete  { color: #DC2626; }
+.action-btn-delete:hover  { background: #FEF2F2; }
 .action-btn-invoice { color: #059669; }
 .action-btn-invoice:hover { background: #ECFDF5; }
 
-/* ===== TOAST NOTIFICATION ===== */
+/* ===== TOAST ===== */
 .toast-item {
     display: flex;
     align-items: center;
@@ -246,22 +285,15 @@ tbody tr:hover { background: #F5F3FF; }
     animation: toastSlideIn 0.3s ease-out;
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
-.toast-fade {
-    opacity: 0;
-    transform: translateX(30px);
-}
+.toast-fade { opacity: 0; transform: translateX(30px); }
 @keyframes toastSlideIn {
     from { opacity: 0; transform: translateX(30px); }
     to   { opacity: 1; transform: translateX(0); }
 }
 
-/* ===== LOADING SPINNER ===== */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-.animate-spin {
-    animation: spin 1s linear infinite;
-}
+/* ===== LOADING ===== */
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 1s linear infinite; }
 
 /* ===== EMPTY STATE ===== */
 .empty-state {
@@ -282,64 +314,42 @@ tbody tr:hover { background: #F5F3FF; }
     .no-print { display: none !important; }
     .sidebar, header, #toast-container, #loading-overlay { display: none !important; }
     main { margin: 0; padding: 0; overflow: visible; }
-    .modal-overlay {
-        position: static;
-        background: none;
-        backdrop-filter: none;
-        display: block;
-    }
-    .modal-content {
-        box-shadow: none;
-        max-width: 100%;
-        margin: 0;
-        padding: 0;
-        animation: none;
-        border-radius: 0;
-    }
+    .modal-overlay { position: static; background: none; backdrop-filter: none; display: block; }
+    .modal-content { box-shadow: none; max-width: 100%; margin: 0; padding: 0; animation: none; border-radius: 0; }
     #invoice-body { padding: 20px; }
     .badge { border: 1px solid #ccc; }
-    .bg-indigo-800 { background: #312E81 !important; }
-    .text-indigo-700 { color: #4338CA !important; }
-    .bg-red-50 { background: #FEF2F2 !important; }
 }
 
-/* =============================================================
-   RESPONSIVE — TABLET (max 768px)
-   ============================================================= */
+/* ===== TABLET (max 768px) ===== */
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
-        left: 0;
-        top: 0;
-        bottom: 0;
+        left: 0; top: 0; bottom: 0;
         width: 280px;
         min-width: 280px;
         transform: translateX(-100%);
         z-index: 40;
     }
-    .sidebar.mobile-open {
-        transform: translateX(0);
-    }
+    .sidebar.mobile-open { transform: translateX(0); }
     .cal-day { min-height: 50px; padding: 3px; }
     .cal-day .day-num { font-size: 0.7rem; }
     .cal-event { font-size: 0.45rem; padding: 1px 3px; }
+    .cal-filter-btn { padding: 5px 10px; font-size: 0.65rem; }
+    .cal-detail-card { padding: 10px; }
+    .cal-detail-row { font-size: 0.7rem; }
     .stat-card { padding: 1rem; }
     header { padding: 1rem; }
     .p-8 { padding: 1rem; }
     .modal-content { margin: 0.5rem; }
 }
 
-/* =============================================================
-   RESPONSIVE — MOBILE (max 480px)
-   ============================================================= */
+/* ===== MOBILE (max 480px) ===== */
 @media (max-width: 480px) {
     .flex.items-center.justify-between.mb-6 {
         flex-direction: column;
         align-items: stretch;
         gap: 0.75rem;
     }
-
-    /* Event tampil sebagai dot bulat berwarna (bukan display:none) */
     .cal-event {
         display: block !important;
         font-size: 0 !important;
@@ -357,17 +367,12 @@ tbody tr:hover { background: #F5F3FF; }
         flex-direction: column;
         align-items: center;
     }
-    .cal-day .day-num {
-        font-size: 0.65rem;
-        margin-bottom: 2px;
-    }
-    .cal-day.today .day-num {
-        width: 20px;
-        height: 20px;
-        font-size: 0.6rem;
-    }
-    .cal-day.cal-empty {
-        min-height: auto;
-    }
+    .cal-day .day-num { font-size: 0.65rem; margin-bottom: 2px; }
+    .cal-day.today .day-num { width: 20px; height: 20px; font-size: 0.6rem; }
+    .cal-day.cal-empty { min-height: auto; }
+    .cal-filter-btn { padding: 4px 8px; font-size: 0.6rem; border-width: 1.5px; }
+    #calendar-filters { gap: 4px; }
+    .cal-detail-card { padding: 8px 10px; }
+    .cal-detail-row { font-size: 0.65rem; gap: 4px; }
+    .cal-detail-id { font-size: 0.7rem; }
 }
-
