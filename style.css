@@ -1,6 +1,8 @@
 
 /* ============================================================
-   STYLE.CSS — Eztafest Admin Dashboard (FINAL)
+   STYLE.CSS — Eztafest Admin Dashboard (FIXED)
+   Fixes: sidebar collapse desktop, sticky header,
+          dashboard table, invoice print
    ============================================================ */
 
 :root {
@@ -15,6 +17,7 @@
     --bg-main: #F8FAFC;
     --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     --card-shadow-hover: 0 10px 25px rgba(67,56,202,0.1);
+    --sidebar-width: 256px;
 }
 
 * { box-sizing: border-box; }
@@ -23,7 +26,23 @@ body { background: var(--bg-main); }
 /* ===== SIDEBAR ===== */
 .sidebar {
     background: linear-gradient(180deg, #1E1B4B 0%, #312E81 50%, #3730A3 100%);
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    transition: width 0.3s ease, min-width 0.3s ease;
+    overflow: hidden;
 }
+
+/* DESKTOP COLLAPSE — sidebar tutup, konten penuh */
+.sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+}
+.sidebar.collapsed * {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
 .tab-btn {
     color: rgba(199,210,254,0.8);
     border-left: 3px solid transparent;
@@ -40,19 +59,42 @@ body { background: var(--bg-main); }
     font-weight: 600;
 }
 
-/* ===== STAT CARDS ===== */
+/* ===== STICKY HEADER ===== */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+/* ===== STAT CARDS — sama rata ===== */
 .stat-card {
     box-shadow: var(--card-shadow);
     transition: all 0.3s ease;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .stat-card:hover {
     box-shadow: var(--card-shadow-hover);
     transform: translateY(-2px);
 }
 
-/* ===== TABLE ===== */
+/* ===== TABLE — cegah wrap ===== */
 tbody tr { transition: background 0.15s ease; }
 tbody tr:hover { background: #F5F3FF; }
+
+/* Dashboard table — kolom tidak wrap */
+#recent-transactions td {
+    white-space: nowrap;
+}
+#recent-transactions td:nth-child(3) {
+    white-space: normal;
+    min-width: 110px;
+    max-width: 180px;
+}
 
 /* ===== BADGES — 7 STATUS ===== */
 .badge {
@@ -308,16 +350,65 @@ tbody tr:hover { background: #F5F3FF; }
 ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-/* ===== PRINT ===== */
+/* =============================================================
+   PRINT — hanya tampilkan invoice, semua lain hilang
+   ============================================================= */
 @media print {
-    body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .no-print { display: none !important; }
-    .sidebar, header, #toast-container, #loading-overlay { display: none !important; }
-    main { margin: 0; padding: 0; overflow: visible; }
-    .modal-overlay { position: static; background: none; backdrop-filter: none; display: block; }
-    .modal-content { box-shadow: none; max-width: 100%; margin: 0; padding: 0; animation: none; border-radius: 0; }
-    #invoice-body { padding: 20px; }
+    body {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Sembunyikan SEMUA konten utama */
+    #app-wrapper,
+    #toast-container,
+    #loading-overlay,
+    #modal-alat,
+    #modal-pelanggan,
+    #modal-order,
+    .no-print {
+        display: none !important;
+    }
+
+    /* Tampilkan HANYA invoice modal */
+    #modal-invoice {
+        position: static !important;
+        background: none !important;
+        backdrop-filter: none !important;
+        display: block !important;
+        inset: auto !important;
+    }
+
+    #modal-invoice .modal-content {
+        box-shadow: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        animation: none !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    #invoice-body {
+        padding: 20px;
+    }
+
+    /* Hide tombol cetak/WA di print */
+    #modal-invoice .no-print,
+    #modal-invoice .flex.justify-end.gap-3.p-4.border-t {
+        display: none !important;
+    }
+
     .badge { border: 1px solid #ccc; }
+
+    /* Invoice tabel header tetap warna */
+    #inv-items-table thead tr {
+        background: #312E81 !important;
+        color: white !important;
+    }
 }
 
 /* ===== TABLET (max 768px) ===== */
@@ -329,15 +420,28 @@ tbody tr:hover { background: #F5F3FF; }
         min-width: 280px;
         transform: translateX(-100%);
         z-index: 40;
+        transition: transform 0.3s ease;
     }
     .sidebar.mobile-open { transform: translateX(0); }
+
+    /* Override desktop collapse di mobile */
+    .sidebar.collapsed {
+        width: 280px;
+        min-width: 280px;
+        transform: translateX(-100%);
+    }
+    .sidebar.collapsed * {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
     .cal-day { min-height: 50px; padding: 3px; }
     .cal-day .day-num { font-size: 0.7rem; }
     .cal-event { font-size: 0.45rem; padding: 1px 3px; }
     .cal-filter-btn { padding: 5px 10px; font-size: 0.65rem; }
     .cal-detail-card { padding: 10px; }
     .cal-detail-row { font-size: 0.7rem; }
-    .stat-card { padding: 1rem; }
+    .stat-card { padding: 1rem; min-height: auto; }
     header { padding: 1rem; }
     .p-8 { padding: 1rem; }
     .modal-content { margin: 0.5rem; }
@@ -376,3 +480,4 @@ tbody tr:hover { background: #F5F3FF; }
     .cal-detail-row { font-size: 0.65rem; gap: 4px; }
     .cal-detail-id { font-size: 0.7rem; }
 }
+

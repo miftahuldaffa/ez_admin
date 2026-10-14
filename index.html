@@ -19,10 +19,11 @@
     </div>
 </div>
 
-<div class="flex h-screen overflow-hidden">
+<!-- APP WRAPPER — di-hide saat print -->
+<div id="app-wrapper" class="flex h-screen overflow-hidden">
 
 <!-- SIDEBAR -->
-<aside id="sidebar" class="sidebar w-64 min-w-[256px] flex flex-col text-white transition-all duration-300">
+<aside id="sidebar" class="sidebar flex flex-col text-white">
     <div class="p-6 border-b border-white/10">
         <h1 class="text-2xl font-extrabold tracking-tight">Eztafest.</h1>
         <p class="text-xs text-indigo-300 mt-1">Rental Alat Event • Semarang</p>
@@ -58,16 +59,16 @@
     </div>
 </aside>
 
-<!-- Sidebar Overlay -->
+<!-- Sidebar Overlay (mobile) -->
 <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-30 hidden" onclick="toggleSidebar()"></div>
 
 <!-- MAIN -->
 <main class="flex-1 flex flex-col overflow-hidden">
 
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+    <!-- Sticky Header -->
+    <header class="sticky-header px-8 py-4 flex items-center justify-between">
         <div class="flex items-center gap-4">
-            <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100 transition">
+            <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100 transition" title="Toggle Sidebar">
                 <i data-lucide="menu" class="w-5 h-5 text-gray-600"></i>
             </button>
             <div>
@@ -77,7 +78,7 @@
         </div>
     </header>
 
-    <!-- Content -->
+    <!-- Content (scrollable) -->
     <div class="flex-1 overflow-y-auto p-8">
 
         <!-- TAB: DASHBOARD -->
@@ -118,12 +119,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-2xl border border-gray-100 p-5">
                     <h3 class="text-sm font-bold text-gray-700 mb-4">Transaksi Terbaru</h3>
-                    <table class="w-full text-sm">
-                        <thead><tr class="text-left text-xs text-gray-400 border-b">
-                            <th class="pb-2">ID</th><th class="pb-2">Pelanggan</th><th class="pb-2">Alat</th><th class="pb-2">Total</th><th class="pb-2">Status</th>
-                        </tr></thead>
-                        <tbody id="recent-transactions"></tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead><tr class="text-left text-xs text-gray-400 border-b">
+                                <th class="pb-2">ID</th><th class="pb-2">Pelanggan</th><th class="pb-2">Alat</th><th class="pb-2">Total</th><th class="pb-2">Status</th>
+                            </tr></thead>
+                            <tbody id="recent-transactions"></tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="bg-white rounded-2xl border border-gray-100 p-5">
                     <h3 class="text-sm font-bold text-gray-700 mb-4">🔥 Alat Paling Laris</h3>
@@ -134,7 +137,7 @@
 
         <!-- TAB: KATALOG -->
         <div id="katalog" class="tab-content hidden">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <input type="text" id="search-katalog" placeholder="Cari alat..." class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" oninput="renderKatalog()">
                 <button onclick="openModalAlat()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition flex items-center gap-2">
                     <i data-lucide="plus" class="w-4 h-4"></i> Tambah Alat
@@ -152,7 +155,7 @@
 
         <!-- TAB: PELANGGAN -->
         <div id="pelanggan" class="tab-content hidden">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
                 <input type="text" id="search-pelanggan" placeholder="Cari pelanggan..." class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" oninput="renderPelanggan()">
                 <button onclick="openModalPelanggan()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition flex items-center gap-2">
                     <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pelanggan
@@ -170,8 +173,8 @@
 
         <!-- TAB: TRANSAKSI -->
         <div id="transaksi" class="tab-content hidden">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
                     <input type="text" id="search-order" placeholder="Cari transaksi..." class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" oninput="renderTransaksi()">
                     <select id="filter-status" onchange="renderTransaksi()" class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
                         <option value="">Semua Status</option>
@@ -260,6 +263,11 @@
     </div>
 </main>
 </div>
+<!-- END APP WRAPPER -->
+
+<!-- ============================================================
+     MODALS — di LUAR app-wrapper supaya print invoice bersih
+     ============================================================ -->
 
 <!-- MODAL: ALAT -->
 <div id="modal-alat" class="modal-overlay hidden">
@@ -335,7 +343,7 @@
 <div id="modal-order" class="modal-overlay hidden">
     <div class="modal-content bg-white rounded-2xl w-full max-w-xl p-6">
         <div class="flex items-center justify-between mb-5">
-            <h3 id="modal-order-title" class="text-lg font-bold">Buat Pesanan Baru</h3>
+            <h3 class="text-lg font-bold">Buat Pesanan Baru</h3>
             <button onclick="closeModal('modal-order')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <div class="space-y-4">
@@ -343,7 +351,7 @@
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Pelanggan</label>
                     <select id="ord-customer" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"></select></div>
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Alat yang Disewa</label>
-                    <select id="ord-item" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"></select></div>
+                    <select id="ord-item" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" onchange="calcOrderPreview()"></select></div>
             </div>
             <div class="grid grid-cols-3 gap-4">
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Qty</label>
@@ -376,14 +384,18 @@
     </div>
 </div>
 
-<!-- MODAL: INVOICE -->
+<!-- MODAL: INVOICE — di luar app-wrapper, muncul bersih saat print -->
 <div id="modal-invoice" class="modal-overlay hidden">
     <div class="modal-content bg-white rounded-2xl w-full max-w-2xl">
+        <!-- Tombol close + aksi — hidden saat print -->
         <div class="flex items-center justify-between p-4 border-b no-print">
             <h3 class="text-lg font-bold">Invoice / Nota</h3>
             <button onclick="closeModal('modal-invoice')" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
+
+        <!-- ISI INVOICE — ini yang di-print -->
         <div id="invoice-body" class="p-6">
+            <!-- Header Invoice -->
             <div class="flex items-start justify-between mb-6 pb-4 border-b-2 border-indigo-800">
                 <div>
                     <h2 class="text-xl font-extrabold text-indigo-800">Eztafest.</h2>
@@ -396,6 +408,8 @@
                     <p id="inv-date" class="text-xs text-gray-400"></p>
                 </div>
             </div>
+
+            <!-- Info Customer + Periode -->
             <div class="grid grid-cols-2 gap-6 mb-6">
                 <div>
                     <p class="text-xs text-gray-400 font-semibold mb-1">Ditagihkan Kepada</p>
@@ -411,12 +425,16 @@
                     <p id="inv-status" class="mt-1"></p>
                 </div>
             </div>
-            <table class="w-full text-sm mb-4">
+
+            <!-- Tabel Item -->
+            <table id="inv-items-table" class="w-full text-sm mb-4">
                 <thead><tr class="text-xs text-white bg-indigo-800">
                     <th class="p-2 text-left">Deskripsi</th><th class="p-2 text-center">Qty</th><th class="p-2 text-center">Hari</th><th class="p-2 text-right">Harga/Hari</th><th class="p-2 text-right">Subtotal</th>
                 </tr></thead>
                 <tbody id="inv-items"></tbody>
             </table>
+
+            <!-- Ringkasan Biaya -->
             <div class="flex justify-end mb-6">
                 <div class="w-64 text-sm space-y-1">
                     <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span id="inv-subtotal" class="font-medium"></span></div>
@@ -427,15 +445,21 @@
                     <div class="flex justify-between bg-red-50 p-1 rounded"><span class="font-bold text-red-700">Sisa Bayar</span><span id="inv-remaining" class="font-bold text-red-700"></span></div>
                 </div>
             </div>
+
+            <!-- Catatan -->
             <div class="mb-4">
                 <p class="text-xs text-gray-400 font-semibold mb-1">Catatan</p>
                 <p id="inv-notes" class="text-sm text-gray-600"></p>
             </div>
+
+            <!-- Pembayaran -->
             <div class="bg-gray-50 rounded-xl p-4 mb-4 text-sm">
                 <p class="font-semibold text-gray-700 mb-1">Pembayaran via Transfer</p>
                 <p class="text-gray-600">Bank BCA — 1234567890</p>
                 <p class="text-gray-600">a/n Eztafest</p>
             </div>
+
+            <!-- S&K -->
             <div class="mb-6 text-xs text-gray-400">
                 <p class="font-semibold mb-1">Syarat & Ketentuan</p>
                 <ol class="list-decimal ml-4 space-y-0.5">
@@ -445,15 +469,27 @@
                     <li>DP tidak dapat dikembalikan jika pembatalan dari pihak penyewa.</li>
                 </ol>
             </div>
+
+            <!-- Tanda Tangan -->
             <div class="grid grid-cols-2 gap-8 text-center text-sm mt-8 mb-4">
-                <div><p class="text-gray-500 mb-16">Penyewa,</p><div class="border-t border-gray-300 pt-1"><p id="inv-sig-name" class="font-semibold"></p></div></div>
-                <div><p class="text-gray-500 mb-16">Eztafest,</p><div class="border-t border-gray-300 pt-1"><p class="font-semibold">Admin</p></div></div>
+                <div>
+                    <p class="text-gray-500 mb-16">Penyewa,</p>
+                    <div class="border-t border-gray-300 pt-1"><p id="inv-sig-name" class="font-semibold"></p></div>
+                </div>
+                <div>
+                    <p class="text-gray-500 mb-16">Eztafest,</p>
+                    <div class="border-t border-gray-300 pt-1"><p class="font-semibold">Admin</p></div>
+                </div>
             </div>
+
+            <!-- Footer -->
             <div class="text-center text-xs text-gray-400 border-t pt-3">
                 <p>Terima kasih atas kepercayaan Anda.</p>
                 <p class="font-semibold">Eztafest — Sewa Alat Event Profesional — Semarang</p>
             </div>
         </div>
+
+        <!-- Tombol Aksi — hidden saat print -->
         <div class="flex justify-end gap-3 p-4 border-t no-print">
             <button onclick="sendInvoiceWA()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-700 transition flex items-center gap-2">
                 <i data-lucide="message-circle" class="w-4 h-4"></i> Kirim ke WA
@@ -473,3 +509,4 @@
 <script src="app.js"></script>
 </body>
 </html>
+
