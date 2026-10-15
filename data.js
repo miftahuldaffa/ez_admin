@@ -1,6 +1,7 @@
 
 // ============================================================
-// DATA.JS — Eztafest Admin Dashboard (FINAL)
+// DATA.JS — Eztafest Admin Dashboard v2 (FULL)
+// + pengeluaranData
 // ============================================================
 
 var SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyolO6DSNsWMDIpPUsBqV3MObrfs_n3BA-0c-hjZCmBTMvsJpjplGdiOWpCbP83cF-Z/exec';
@@ -8,6 +9,7 @@ var SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbyolO6DSNsWMDIpPUsB
 var inventoryData = [];
 var customersData = [];
 var ordersData = [];
+var pengeluaranData = [];
 
 // ===== FORMAT RUPIAH =====
 function formatRp(num) {
@@ -94,19 +96,15 @@ function getTodayStr() {
 
 // =============================================================
 // NORMALIZE TANGGAL (handle semua format dari Google Sheets)
-// "Thu Oct 15 2026..." → "2026-10-15"
-// "2026-10-15T00:00:00" → "2026-10-15"
-// "10/15/2026" → "2026-10-15"
-// 46311 (serial Excel) → "2026-10-15"
 // =============================================================
 function normalizeDateStr(val) {
     if (!val || val === '' || val === '-') return '';
     var s = String(val).trim();
 
-    // Sudah format YYYY-MM-DD → langsung return
+    // Sudah format YYYY-MM-DD
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
 
-    // Format YYYY-MM-DDTHH:mm:ss (ISO) → ambil 10 karakter
+    // Format YYYY-MM-DDTHH:mm:ss (ISO)
     if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.substring(0, 10);
 
     // Format MM/DD/YYYY atau DD/MM/YYYY
@@ -134,7 +132,7 @@ function normalizeDateStr(val) {
 }
 
 // =============================================================
-// GOOGLE SHEETS: LOAD DATA
+// GOOGLE SHEETS: LOAD DATA (4 sheets)
 // =============================================================
 async function loadFromSheet() {
     if (!SHEET_API_URL) {
@@ -171,17 +169,26 @@ async function loadFromSheet() {
                 o.total = Number(o.total) || 0;
                 o.dp = Number(o.dp) || 0;
                 o.remaining = Number(o.remaining) || 0;
-                // Fix tanggal — convert semua format ke YYYY-MM-DD
                 o.startDate = normalizeDateStr(o.startDate);
                 o.endDate = normalizeDateStr(o.endDate);
                 o.createdDate = normalizeDateStr(o.createdDate);
             }
         }
 
+        // === PENGELUARAN (BARU) ===
+        if (data.pengeluaran && data.pengeluaran.length) {
+            pengeluaranData = data.pengeluaran;
+            for (var i = 0; i < pengeluaranData.length; i++) {
+                var e = pengeluaranData[i];
+                e.amount = Number(e.amount) || 0;
+                e.date = normalizeDateStr(e.date);
+            }
+        }
+
         recalcAvailableStock();
         saveToLocalStorage();
         showLoading(false);
-        console.log('✅ Data loaded dari Google Sheets');
+        console.log('✅ Data loaded dari Google Sheets (4 sheets)');
         return true;
 
     } catch (err) {
@@ -249,12 +256,13 @@ async function syncAvailableStock() {
 }
 
 // =============================================================
-// LOCAL STORAGE BACKUP
+// LOCAL STORAGE BACKUP (+ pengeluaran)
 // =============================================================
 function saveToLocalStorage() {
     localStorage.setItem('eztafest_inventory', JSON.stringify(inventoryData));
     localStorage.setItem('eztafest_customers', JSON.stringify(customersData));
     localStorage.setItem('eztafest_orders', JSON.stringify(ordersData));
+    localStorage.setItem('eztafest_pengeluaran', JSON.stringify(pengeluaranData));
 }
 
 function loadFromLocalStorage() {
@@ -262,9 +270,11 @@ function loadFromLocalStorage() {
         var inv = localStorage.getItem('eztafest_inventory');
         var cust = localStorage.getItem('eztafest_customers');
         var ord = localStorage.getItem('eztafest_orders');
+        var exp = localStorage.getItem('eztafest_pengeluaran');
         if (inv) inventoryData = JSON.parse(inv);
         if (cust) customersData = JSON.parse(cust);
         if (ord) ordersData = JSON.parse(ord);
+        if (exp) pengeluaranData = JSON.parse(exp);
         recalcAvailableStock();
     } catch (e) {
         console.warn('⚠️ Gagal load dari localStorage:', e);

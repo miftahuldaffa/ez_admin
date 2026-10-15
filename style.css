@@ -1,8 +1,7 @@
 
 /* ============================================================
-   STYLE.CSS — Eztafest Admin Dashboard (FIXED)
-   Fixes: sidebar collapse desktop, sticky header,
-          dashboard table, invoice print
+   STYLE.CSS — Eztafest Admin Dashboard (v2)
+   + edit payment modal, pengeluaran tab, cashflow, export
    ============================================================ */
 
 :root {
@@ -32,7 +31,7 @@ body { background: var(--bg-main); }
     overflow: hidden;
 }
 
-/* DESKTOP COLLAPSE — sidebar tutup, konten penuh */
+/* DESKTOP COLLAPSE */
 .sidebar.collapsed {
     width: 0;
     min-width: 0;
@@ -82,14 +81,12 @@ body { background: var(--bg-main); }
     transform: translateY(-2px);
 }
 
-/* ===== TABLE — cegah wrap ===== */
+/* ===== TABLE ===== */
 tbody tr { transition: background 0.15s ease; }
 tbody tr:hover { background: #F5F3FF; }
 
-/* Dashboard table — kolom tidak wrap */
-#recent-transactions td {
-    white-space: nowrap;
-}
+/* Dashboard table — cegah wrap */
+#recent-transactions td { white-space: nowrap; }
 #recent-transactions td:nth-child(3) {
     white-space: normal;
     min-width: 110px;
@@ -114,6 +111,9 @@ tbody tr:hover { background: #F5F3FF; }
 .badge-returned { background: #CFFAFE; color: #155E75; }
 .badge-done     { background: #D1FAE5; color: #065F46; }
 .badge-cancelled{ background: #FEE2E2; color: #991B1B; }
+
+/* Badge kategori pengeluaran */
+.badge-expense  { background: #FEF3C7; color: #92400E; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -245,11 +245,7 @@ tbody tr:hover { background: #F5F3FF; }
     background: #FFF7ED !important;
     box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
 }
-
-/* ===== HAS EVENT ===== */
-.cal-day.cal-has-event {
-    border-color: #C7D2FE;
-}
+.cal-day.cal-has-event { border-color: #C7D2FE; }
 
 /* ===== DETAIL CARDS ===== */
 .cal-detail-card {
@@ -311,6 +307,89 @@ tbody tr:hover { background: #F5F3FF; }
 .action-btn-delete:hover  { background: #FEF2F2; }
 .action-btn-invoice { color: #059669; }
 .action-btn-invoice:hover { background: #ECFDF5; }
+.action-btn-payment { color: #D97706; }
+.action-btn-payment:hover { background: #FFFBEB; }
+
+/* ===== EXPORT BUTTONS ===== */
+.export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid;
+    transition: all 0.2s ease;
+}
+.export-btn-excel {
+    color: #059669;
+    border-color: #059669;
+    background: white;
+}
+.export-btn-excel:hover { background: #ECFDF5; }
+.export-btn-pdf {
+    color: #DC2626;
+    border-color: #DC2626;
+    background: white;
+}
+.export-btn-pdf:hover { background: #FEF2F2; }
+
+/* ===== CASHFLOW TABLE ===== */
+.cashflow-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.cashflow-table th {
+    background: #312E81;
+    color: white;
+    padding: 8px 12px;
+    text-align: right;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.cashflow-table th:first-child { text-align: left; }
+.cashflow-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #E5E7EB;
+    text-align: right;
+}
+.cashflow-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+.cashflow-table tr:hover { background: #F5F3FF; }
+.cashflow-income { color: #059669; font-weight: 600; }
+.cashflow-expense { color: #DC2626; font-weight: 600; }
+.cashflow-profit { font-weight: 700; }
+.cashflow-profit.positive { color: #059669; }
+.cashflow-profit.negative { color: #DC2626; }
+.cashflow-table tfoot td {
+    background: #F1F5F9;
+    font-weight: 700;
+    border-top: 2px solid #312E81;
+}
+
+/* ===== MONTH FILTER ===== */
+.month-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.month-filter select, .month-filter input {
+    padding: 6px 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    background: white;
+}
+.month-filter select:focus, .month-filter input:focus {
+    outline: none;
+    ring: 2px;
+    border-color: #6366F1;
+}
 
 /* ===== TOAST ===== */
 .toast-item {
@@ -351,7 +430,7 @@ tbody tr:hover { background: #F5F3FF; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
 /* =============================================================
-   PRINT — hanya tampilkan invoice, semua lain hilang
+   PRINT — hanya invoice
    ============================================================= */
 @media print {
     body {
@@ -359,19 +438,17 @@ tbody tr:hover { background: #F5F3FF; }
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
-
-    /* Sembunyikan SEMUA konten utama */
     #app-wrapper,
     #toast-container,
     #loading-overlay,
     #modal-alat,
     #modal-pelanggan,
     #modal-order,
+    #modal-payment,
+    #modal-pengeluaran,
     .no-print {
         display: none !important;
     }
-
-    /* Tampilkan HANYA invoice modal */
     #modal-invoice {
         position: static !important;
         background: none !important;
@@ -379,7 +456,6 @@ tbody tr:hover { background: #F5F3FF; }
         display: block !important;
         inset: auto !important;
     }
-
     #modal-invoice .modal-content {
         box-shadow: none !important;
         max-width: 100% !important;
@@ -391,20 +467,10 @@ tbody tr:hover { background: #F5F3FF; }
         max-height: none !important;
         overflow: visible !important;
     }
-
-    #invoice-body {
-        padding: 20px;
-    }
-
-    /* Hide tombol cetak/WA di print */
+    #invoice-body { padding: 20px; }
     #modal-invoice .no-print,
-    #modal-invoice .flex.justify-end.gap-3.p-4.border-t {
-        display: none !important;
-    }
-
+    #modal-invoice .flex.justify-end.gap-3.p-4.border-t { display: none !important; }
     .badge { border: 1px solid #ccc; }
-
-    /* Invoice tabel header tetap warna */
     #inv-items-table thead tr {
         background: #312E81 !important;
         color: white !important;
@@ -423,8 +489,6 @@ tbody tr:hover { background: #F5F3FF; }
         transition: transform 0.3s ease;
     }
     .sidebar.mobile-open { transform: translateX(0); }
-
-    /* Override desktop collapse di mobile */
     .sidebar.collapsed {
         width: 280px;
         min-width: 280px;
@@ -434,7 +498,6 @@ tbody tr:hover { background: #F5F3FF; }
         opacity: 1;
         pointer-events: auto;
     }
-
     .cal-day { min-height: 50px; padding: 3px; }
     .cal-day .day-num { font-size: 0.7rem; }
     .cal-event { font-size: 0.45rem; padding: 1px 3px; }
@@ -445,6 +508,8 @@ tbody tr:hover { background: #F5F3FF; }
     header { padding: 1rem; }
     .p-8 { padding: 1rem; }
     .modal-content { margin: 0.5rem; }
+    .cashflow-table { font-size: 0.75rem; }
+    .cashflow-table th, .cashflow-table td { padding: 6px 8px; }
 }
 
 /* ===== MOBILE (max 480px) ===== */
@@ -479,5 +544,5 @@ tbody tr:hover { background: #F5F3FF; }
     .cal-detail-card { padding: 8px 10px; }
     .cal-detail-row { font-size: 0.65rem; gap: 4px; }
     .cal-detail-id { font-size: 0.7rem; }
+    .export-btn { padding: 6px 10px; font-size: 0.7rem; }
 }
-
